@@ -1,5 +1,6 @@
 
-from src.scrappers.zimmo import Scrapper, UrlGrabber
+# from src.scrappers.zimmo import Scrapper, UrlGrabber
+from UrlGrabber import UrlGrabber
 
 
 class Manager:
@@ -26,4 +27,13 @@ class Manager:
         It retrieve the URLs given by an UrlGrabber, then instantiate multiple
         threaded Scrappers and return their result to the Cleaner.
         """
+        self.urls : list = []
+
+        grabber = UrlGrabber(Manager.provinces[0])
+        grabber.start()
+
+    def retrieve_urls(self):
         pass
+
+
+Manager()

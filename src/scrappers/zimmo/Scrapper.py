@@ -13,6 +13,8 @@ class Scrapper(Thread):
         super().__init__()
         self.url = url
 
+    # Exclure viager & tout sauf maison/appartement
+
     def __scrap_locality(self):
         pass
 
