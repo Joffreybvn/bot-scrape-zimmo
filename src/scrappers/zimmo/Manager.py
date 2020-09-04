@@ -30,16 +30,36 @@ class Manager:
         threaded Scrappers and return their result to the Cleaner.
         """
         self.urls: list = []
-        self.retrieve_urls()
+        self.houses = []
 
-    def retrieve_urls(self):
+        self.__grab_all_urls()
+        self.__scrap_all_pages()
+
+    def __grab_all_urls(self):
         """Retrieve the urls of all selling advertisement from zimmo.be."""
 
-        urls = self.__thread_call(self.url_grabber, Manager.provinces, 10)
+        urls = self.__thread_call(self.__url_grabber, Manager.provinces, 10)
         for url in urls:
             print(url.result())
 
         # TODO: Store the urls in self.urls
+
+    @staticmethod
+    def __url_grabber(province):
+        return UrlGrabber(province).get_urls()
+
+    def __scrap_all_pages(self):
+        houses = self.__thread_call(self.__scrapper, self.urls, 10)
+
+        for house in houses:
+            print(house)
+
+        # TODO: Store the houses data in self.houses.
+        # TODO: Transform it into an iterator to return the retrieved houses as quick as possible to the cleaner.
+
+    @staticmethod
+    def __scrapper(url):
+        return Scrapper(url).get_data()
 
     @staticmethod
     def __thread_call(func, sources, max_workers):
@@ -60,7 +80,5 @@ class Manager:
             # Return an iterator of lists
             return concurrent.futures.as_completed(futures)
 
-    @staticmethod
-    def url_grabber(province):
-        return UrlGrabber(province).get_urls()
+
 
