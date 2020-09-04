@@ -1,6 +1,7 @@
 
+import re
 from threading import Thread
-
+from typing import Union, Any
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
@@ -27,6 +28,9 @@ swimming_pool : yes/no
 state_building : new/to be renovated 
 ******************************************************************************
 """
+
+# Regex:
+# facades: r"(?P<number>\d)-façades"
 
 
 class Scrapper(Thread):
@@ -93,134 +97,204 @@ class Scrapper(Thread):
         """
 
         super().__init__()
+
         self.driver = webdriver.Chrome("/usr/lib/chromium-browser/chromedriver")
         self.url = url
         self.data = []
-
+        self.soup = None
 
     def get_data(self):
+
+        if not self.data:
+            self.scrap()
         return self.data
 
     def scrap(self):
 
-        #Fetch the page
+        # Fetch the page
         self.driver.get(self.url)
-        soup = BeautifulSoup(self.driver.page_source, "lxml")
+        self.soup = BeautifulSoup(self.driver.page_source, "lxml")
 
-        self.__scrap_price(soup, 'div', 'price-box')
-        self.__scrap_furnished(soup)
-        self.__scrap_open_fire(soup)
-        self.__scrap_terrace(soup, 'div', 'col-xs-7 info-name', 'Terrasse')
-        self.__scrap_garden(soup, 'div', 'col-xs-7 info-name', 'Jardin')
-        self.__scrap_house_surface(soup, 'div', 'col-xs-7 info-name', 'Surf. habitable')
-        self.__scrap_plot_surface(soup, 'div', 'col-xs-7 info-name', 'Sup. du terrain')
-        self.__scrap_facades(soup, 'div', 'col-xs-7 info-name', 'Construction')
-        self.__scrap_swimming_pool(soup, 'div', 'col-xs-7 info-name', 'Piscine')
-        self.__scrap_building_state(soup, 'div', 'col-xs-7 info-name', 'Année de rénovation')
+        # Scrap the data
+        self.data = [
+            self.__scrap_locality(),  # Locality
+            self.__scrap_property_subtype(),  # Type of property
+            self.__scrap_price(),  # Price
+            self.__scrap_rooms_number(),  # Sale type
+            self.__scrap_regex_value('div', 'col-xs-7 info-name', 'Surface habitable', r"(?P<number>\d) m²"),  # Area
+            self.__scrap_kitchen(),  # Kitchen equipment
+            self.__scrap_furnished(),  # Furnished
+            self.__scrap_open_fire(),  # Open fire
+            self.scrap_v_mark('div', 'col-xs-7 info-name', 'Terrasse'),  # Terrace
+            None,  # Terrace Area
+            self.scrap_v_mark('div', 'col-xs-7 info-name', 'Jardin'),  # Garden
+            None,  # Garden Area
+            self.__scrap_regex_value('div', 'col-xs-7 info-name', 'Surface construite', r"(?P<number>\d) m²"),  # Surface of the land
+            self.__scrap_regex_value('div', 'col-xs-7 info-name', 'Superficie du terrain', r"(?P<number>\d) m²"),  # Plot of land
+            self.__scrap_regex_value('div', 'col-xs-7 info-name', 'Construction', r"(?P<number>\d)-façades"),  # Facades
+            self.scrap_v_mark('div', 'col-xs-7 info-name', 'Piscine'),  # Swimming Pool
+            self.__scrap_building_state('div', 'col-xs-7 info-name')  # Building state
+        ]
 
         self.driver.close()
 
+    def __scrap_locality(self) -> Union[str, None]:
 
-    def retrieve_content(self, tag, attributes=None):
+        title = self.__get_text(self.__scrap_field('h2', {"class": "section-title"}))
 
-        if attributes is None:
-            attributes = {}
+        if title:
+            regex = re.search(r"((\d){4} (?P<city>.+)$)", title.strip())
 
-        return self.source.find_all(tag, attrs=attributes)
+            if regex:
+                return regex.group("city")
 
-    def retrieve_all_raw_content(self):
-
-        # Loop through the attributes and retrieve each corresponding element
-        for entry in Scrapper.attributes:
-            self.data.append(
-                self.sanitize(entry['sanitizer'], self.retrieve_content(entry['tag'], entry['attributes'])[0]))
-
-
-    def __scrap_locality(self, tag, attributes):
-        for elem in soup.find_all(tag, attributes):
-            m = re.search(r"((\d){4} (?P<city>.+)$)", elem.text.strip())
-            return m.group("city"))
-
-        pass
+        return None
 
     def __scrap_property_type(self):
-        pass
+        return "later"
 
     def __scrap_property_subtype(self):
-        pass
+        return "later"
 
-    def __scrap_price(self, tag, attributes):
-        for elem in soup.find_all(tag, attributes):
-            n = re.search(r"(?P<price>([0-9]{0,3}[.]?[0-9]{0,3}[.]?[0-9]{1,3})$)", elem.text.strip())
-            print(n.group("price"))
+    def __scrap_price(self) -> Union[str, None]:
+        """Scrap the price."""
 
-        pass
+        tag = self.__get_text(self.__scrap_field('div', {"class": "price-box"}))
 
-    def __scrap_sale_type(self):
-        for elem in soup.find_all('div', attrs={"class": "price-box"}):
-            o = elem.find_all("svg")
-            print(o)
-            if not o:
-                print('vente notariale')
+        if tag:
+            price = re.search(r"(?P<price>([0-9]{0,3}[.]?[0-9]{0,3}[.]?[0-9]{1,3})$)", tag.strip())
+
+            if price:
+                return price.group("price")
+
+        return None
+
+    def __scrap_sale_type(self) -> Union[str, None]:
+        """Scrap the sale type."""
+        sale = self.__scrap_field('div', {"class": "price-box"})
+
+        if sale:
+            icon = sale.find("svg")
+
+            if not icon:
+                return "notariale"
             else:
-                print('vente par agence')
-        pass
+                return "agence"
+        return None
 
     def __scrap_rooms_number(self):
-        pass
-
-    def __scrap_area(self):
-        pass
+        # TODO: implement rooms number
+        return 0
 
     def __scrap_kitchen(self):
-        pass
+        # TODO: Better filter
+        return self.__scrap_description(r"([cC]uisine [eéE]quipée).*")
 
-    def __scrap_furnished(self, soup):
-        if ("meublé" or "meubels") in soup.lower():
-            print("yes")
+    def __scrap_furnished(self) -> bool:
+        """Scrap if the house has furniture or not, by looking on the description."""
+
+        if self.scrap_v_mark('div', 'col-xs-7 info-name', 'Meublé'):
+            return True
+
         else:
-            print("no")
+            return self.__scrap_description(r"([mM]eublé|[mM]eubels).*")
 
-    def __scrap_open_fire(self, soup):
-        if ("feu ouvert" or "open haard") in soup.lower():
-            print("yes")
-        else:
-            print("no")
+    def __scrap_open_fire(self) -> bool:
+        """Scrap if there's an open fire or not, by looking on the description."""
 
-    def __scrap_terrace(self, soup, tag, attributes, text):
-        result = self.__scrap_title_field(soup, tag, attributes, text)
-        if result.find('i', {"class": "zf-icon icon-check yes"}):
+        return self.__scrap_description(r"([fF]eu [oO]uvert|[oO]pen [hH]aard).*")
+
+    def __scrap_description(self, regex) -> bool:
+        """Scrap the description and look for match."""
+
+        # Scrap the description
+        description = self.__get_text(self.__scrap_field('p', {"class": "description-block"}))
+
+        # Find a match for the given regex
+        if description and re.match(r"([fF]eu [oO]uvert|[oO]pen [hH]aard).*", description):
             return True
         else:
             return False
 
-    def __scrap_garden(self, soup, tag, attributes, text):
-        result = self.__scrap_title_field(soup, tag, attributes, text)
-        if result.find('i', {"class": "zf-icon icon-check yes"}):
+    def __scrap_regex_value(self, tag, attributes, text, regex) -> Union[str, None]:
+        """Scrap a value through a regex."""
+
+        # Scrap the value's text
+        result = self.__get_text(self.__scrap_field_value(tag, attributes, text))
+
+        # If the text is not empty, apply regex
+        if result:
+            regex = re.search(regex, result)
+
+            # If the regex is not empty, return its value
+            if regex:
+                return regex.group("number")
+
+        # Return None if no value was found
+        return None
+
+    def scrap_v_mark(self, tag, attributes, text) -> bool:
+        """
+        Scrap a value with a V mark.
+        Used for: Swimming pool, garden.
+        """
+
+        # Scrap the value
+        result = self.__scrap_field_value(tag, attributes, text)
+
+        # Check if there's a V mark in the field
+        if result and result.find('i', {"class": "zf-icon icon-check yes"}):
             return True
-        else:
-            return False
 
-    def __scrap_house_surface(self, soup, tag, attributes, text):
-        return self.__scrap_title_field(self, soup, tag, attributes, text).get_text()
+        # Return False if not
+        return False
 
-    def __scrap_plot_surface(self, soup, tag, attributes, text):
-        return self.__scrap_title_field(self, soup, tag, attributes, text).get_text()
+    def __scrap_building_state(self, tag, attributes) -> Union[str, None]:
+        """Scrap the state of the building."""
+        # TODO: Implement more guessing about if a house is old or to be renovated
 
-    def __scrap_facades(self, soup, tag, attributes, text):
-        facades = self.__scrap_title_field(self, soup, tag, attributes, text).get_text()
-        result = re.search(r"(?P<amount>\d)-façades", facades)
-        return result.group("amount")
+        # The state can be found from two fields:
+        fields = [
+            ('Année de rénovation', "new"),
+            ('Année de construction', 'old')
+        ]
 
-    def __scrap_swimming_pool(self, soup, tag, attributes, text):
-        result = self.__scrap_title_field(soup, tag, attributes, text)
-        if result.find('i', {"class": "zf-icon icon-check yes"}):
-            return True
-        else:
-            return False
+        # Loop through all field
+        for field in fields:
+            result = self.__scrap_field_value(tag, attributes, field[0])
 
-    def __scrap_building_state(self, soup, tag, attributes, text):
-        return self.__scrap_title_field(soup, tag, attributes, text).get_text()
+            # If a field exists, return the corresponding data
+            if result:
+                return field[1]
 
-    def __scrap_title_field(self, soup, tag, attributes, text):
-        return soup.find(tag, attributes, string=text).find_next('div')
+        # Return None if no data was scrapped
+        return None
+
+    def __scrap_field(self, tag, attributes, text=None) -> Union[Any, None]:
+        """Scrap a field and return it."""
+
+        return self.soup.find(tag, attributes, string=text)
+
+    def __scrap_field_value(self, tag, attributes, text):
+        """Scrap a field by its title and return the value of this field."""
+
+        # Retrieve the field containing the title.
+        title = self.__scrap_field(tag, attributes, text)
+
+        # If it exists, return its value.
+        if title:
+            return title.find_next('div')
+
+        # If the field doesn't exist, return False.
+        return False
+
+    @staticmethod
+    def __get_text(tag: Any):
+        """Retrieve and return the text from a given tag."""
+
+        # If the tag is not empty, return its content.
+        if tag:
+            return tag.get_text()
+
+        # Return false if not.
+        return False
