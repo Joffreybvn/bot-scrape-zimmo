@@ -119,9 +119,11 @@ class Scrapper(Thread):
         # Scrap the data
         self.data = [
             self.__scrap_locality(),  # Locality
-            self.__scrap_property_subtype(),  # Type of property
+            self.__scrap_property_type(),  # Type of property
+            self.__scrap_property_subtype(),  # Subtype of property
             self.__scrap_price(),  # Price
-            self.__scrap_rooms_number(),  # Sale type
+            self.__scrap_sale_type(),  # Sale type
+            self.__scrap_rooms_number(),  # Room number
             self.__scrap_regex_value('div', 'col-xs-7 info-name', 'Surface habitable', r"(?P<number>\d) m²"),  # Area
             self.__scrap_kitchen(),  # Kitchen equipment
             self.__scrap_furnished(),  # Furnished
