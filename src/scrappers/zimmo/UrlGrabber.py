@@ -1,9 +1,7 @@
-
+import random
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from threading import Thread
-
-driver = webdriver.Chrome("/usr/lib/chromium-browser/chromedriver")
 
 
 class UrlGrabber(Thread):
@@ -17,8 +15,9 @@ class UrlGrabber(Thread):
         """
 
         Thread.__init__(self)
+        self.driver = webdriver.Chrome("/usr/lib/chromium-browser/chromedriver")
         self.source = f"https://www.zimmo.be/fr/province/{province}/a-vendre/?pagina=%s#gallery"
-        self.urls = []
+        self.urls: list = []
 
     def get_urls(self):
         """Return a list of all urls of the given province."""
@@ -47,13 +46,13 @@ class UrlGrabber(Thread):
             i += 1
 
             # Fetch the webpage
-            driver.get(self.source % i)
+            self.driver.get(self.source % i)
 
             # Check if there are adverts
-            if not driver.find_elements(By.CLASS_NAME, "col-sm-7"):
+            if not self.driver.find_elements(By.CLASS_NAME, "col-sm-7"):
 
                 # Append all advertisement's links
-                links = driver.find_elements_by_class_name("property-item_link")
+                links = self.driver.find_elements_by_class_name("property-item_link")
                 for link in links:
                     self.urls.append(link.get_attribute('href'))
 
@@ -61,3 +60,4 @@ class UrlGrabber(Thread):
             else:
                 is_complete = True
 
+        self.driver.close()
