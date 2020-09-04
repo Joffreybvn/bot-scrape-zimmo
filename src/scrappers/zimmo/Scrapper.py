@@ -98,7 +98,8 @@ class Scrapper(Thread):
 
         super().__init__()
 
-        self.driver = webdriver.Chrome("/usr/lib/chromium-browser/chromedriver")
+        #self.driver = webdriver.Chrome("/usr/lib/chromium-browser/chromedriver")
+        self.driver = webdriver.Chrome("/Users/noahalvarezgonzalez/Drivers/chromedriver")
         self.url = url
         self.data = []
         self.soup = None
