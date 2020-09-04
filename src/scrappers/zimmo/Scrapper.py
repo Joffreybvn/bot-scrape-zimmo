@@ -107,11 +107,16 @@ class Scrapper(Thread):
         self.driver.get(self.url)
         soup = BeautifulSoup(self.driver.page_source, "lxml")
 
+        self.__scrap_price(soup, 'div', 'price-box')
+        self.__scrap_furnished(soup)
+        self.__scrap_open_fire(soup)
+        self.__scrap_terrace(soup, 'div', 'col-xs-7 info-name', 'Terrasse')
+        self.__scrap_garden(soup, 'div', 'col-xs-7 info-name', 'Jardin')
+        self.__scrap_house_surface(soup, 'div', 'col-xs-7 info-name', 'Surf. habitable')
+        self.__scrap_plot_surface(soup, 'div', 'col-xs-7 info-name', 'Sup. du terrain')
+        self.__scrap_facades(soup, 'div', 'col-xs-7 info-name', 'Construction')
         self.__scrap_swimming_pool(soup, 'div', 'col-xs-7 info-name', 'Piscine')
-
         self.__scrap_building_state(soup, 'div', 'col-xs-7 info-name', 'Année de rénovation')
-        self.__scrap_furnished(soup, 'div', 'col-xs-7 info-name', 'Piscine')
-
 
         self.driver.close()
 
@@ -131,8 +136,8 @@ class Scrapper(Thread):
                 self.sanitize(entry['sanitizer'], self.retrieve_content(entry['tag'], entry['attributes'])[0]))
 
 
-    def __scrap_locality(self):
-        for elem in self.source.find_all(tag, attrs=attributes):
+    def __scrap_locality(self, tag, attributes):
+        for elem in soup.find_all(tag, attributes):
             m = re.search(r"((\d){4} (?P<city>.+)$)", elem.text.strip())
             return m.group("city"))
 
@@ -144,9 +149,8 @@ class Scrapper(Thread):
     def __scrap_property_subtype(self):
         pass
 
-    def __scrap_price(self, sanitizer):
-        for sanitizer == "price"
-        for elem in self.source.find_all(tag, attrs=attributes):
+    def __scrap_price(self, tag, attributes):
+        for elem in soup.find_all(tag, attributes):
             n = re.search(r"(?P<price>([0-9]{0,3}[.]?[0-9]{0,3}[.]?[0-9]{1,3})$)", elem.text.strip())
             print(n.group("price"))
 
@@ -171,12 +175,11 @@ class Scrapper(Thread):
     def __scrap_kitchen(self):
         pass
 
-    def __scrap_furnished(self):
-        result = self.__scrap_title_field(soup, tag, attributes, text)
-        if result.find('i', {"class": "zf-icon icon-check yes"}):
-            return True
+    def __scrap_furnished(self, soup):
+        if ("meublé" or "meubels") in soup.lower():
+            print("yes")
         else:
-            return False
+            print("no")
 
     def __scrap_open_fire(self, soup):
         if ("feu ouvert" or "open haard") in soup.lower():
@@ -184,19 +187,25 @@ class Scrapper(Thread):
         else:
             print("no")
 
-        pass
+    def __scrap_terrace(self, soup, tag, attributes, text):
+        result = self.__scrap_title_field(soup, tag, attributes, text)
+        if result.find('i', {"class": "zf-icon icon-check yes"}):
+            return True
+        else:
+            return False
 
-    def __scrap_terrace(self):
-        pass
+    def __scrap_garden(self, soup, tag, attributes, text):
+        result = self.__scrap_title_field(soup, tag, attributes, text)
+        if result.find('i', {"class": "zf-icon icon-check yes"}):
+            return True
+        else:
+            return False
 
-    def __scrap_garden(self):
-        pass
+    def __scrap_house_surface(self, soup, tag, attributes, text):
+        return self.__scrap_title_field(self, soup, tag, attributes, text).get_text()
 
-    def __scrap_house_surface(self):
-        return self.__scrap_title_field(soup, tag, attributes, text).get_text()
-
-    def __scrap_plot_surface(self):
-        return self.__scrap_title_field(soup, tag, attributes, text).get_text()
+    def __scrap_plot_surface(self, soup, tag, attributes, text):
+        return self.__scrap_title_field(self, soup, tag, attributes, text).get_text()
 
     def __scrap_facades(self, soup, tag, attributes, text):
         facades = self.__scrap_title_field(self, soup, tag, attributes, text).get_text()
