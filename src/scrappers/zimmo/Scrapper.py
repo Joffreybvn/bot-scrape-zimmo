@@ -1,6 +1,84 @@
 
 from threading import Thread
 
+"""
+************************definition of variables****************************** 
+locality : str
+type_of_property : house/appartment
+subtype of property :
+price : int (euros)
+sale_type : by agency/notarial
+Num_rooms : int
+area : int (squared meters)
+kitchen_equipment : none, equipped, fully equipped
+furnished : yes/no
+open_fire : yes/no
+terrace : yes/no
+    If yes, surface : int (squared meters)
+garden
+    if yes, surface : int (squared meters)
+surface_land : int (squared meters)
+surface_plot_land : int (squared meters)
+number_of_facades : int
+swimming_pool : yes/no
+state_building : new/to be renovated 
+******************************************************************************
+"""
+
+attributes = [
+
+        {   # 0 - default : num_rooms, kitchen_equipment, furnished,
+            # is in //div @class="col-xs-7 info-name"
+            "tag": 'div',
+            "attributes": {
+                "class": "col-xs-7 info-name",
+                "text": ""
+            },
+            "sanitizer": "default"
+        },
+        {  # 1 - facade
+           # is in //div @class="col-xs-7 info-name"
+            "tag": 'div',
+            "attributes": {
+                "class": "col-xs-7 info-name",
+                "text":"Construction"
+            },
+            "sanitizer": "facade"
+        },
+        {  # 2 - state_building
+           # is in //div @class="col-xs-7 info-name"
+            "tag": 'div',
+            "attributes": {
+                "class": "col-xs-7 info-name",
+                "text":"Année de rénovation"
+            },
+            "sanitizer": "state_building"
+        },
+        {  # 3 - locality
+           # is in //h2 @class="section-title"
+            "tag": 'h2',
+            "attributes": {
+                "class": "section-title"
+            },
+            "sanitizer": "locality"
+        },
+        {  # 4 - price
+           # is in //div @class="price-box"
+            "tag": 'div',
+            "attributes": {
+                "class": "price-box",
+            },
+            "sanitizer": "price"
+        },
+        {  # 5 - sale_type
+           # is in //div @class="price-box"
+            "tag": 'div',
+            "attributes": {
+                "class": "price-box",
+            },
+            "sanitizer": "sale_type"
+        },
+            ]
 
 class Scrapper(Thread):
 
