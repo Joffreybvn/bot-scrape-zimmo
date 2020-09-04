@@ -1,6 +1,9 @@
 
 from threading import Thread
 
+from bs4 import BeautifulSoup
+from selenium import webdriver
+
 """
 ************************definition of variables****************************** 
 locality : str
@@ -90,34 +93,24 @@ class Scrapper(Thread):
         """
 
         super().__init__()
+        self.driver = webdriver.Chrome("/usr/lib/chromium-browser/chromedriver")
         self.url = url
         self.data = []
 
 
-    # Exclure viager & tout sauf maison/appartement
-
-    def init_driver():
-        driver = copy.copy(webdriver)
-        driver.implicitly_wait(30)
-
-        return driver
-
     def get_data(self):
         return self.data
 
-
-
-    def Scrap(self):
+    def scrap(self):
 
         #Fetch the page
         self.driver.get(self.url)
+        soup = BeautifulSoup(self.driver.page_source, "lxml")
 
-        #Save the source of the page
-        time.sleep(1)
-        self.source = BeautifulSoup(self.driver.page_source, 'lxml')
+        self.__scrap_building_state(soup, 'div', 'col-xs-7 info-name', 'Année de rénovation')
+
         self.driver.close()
 
-        #Lauch scrappers and retrieve content
 
     def retrieve_content(self, tag, attributes=None):
 
@@ -213,32 +206,21 @@ class Scrapper(Thread):
 
         pass
 
-    def __scrap_swimming_pool(self):
-        def find_pool(url, tag, attributes, text):
+    def __scrap_swimming_pool(self, soup, tag, attributes, text):
 
-            # Retrieve the page and parse it to bs4
-            driver.get(url)
-            soup = BeautifulSoup(driver.page_source, "lxml")
-            driver.close()
+        # Retrieve the content
+        result = self.__scrap_title_field(soup, tag, attributes, text)
 
-            # Retrieve the content
-            result = soup.find(tag, attributes, string=text).find_next('div')
+        if result.find('i', {"class": "zf-icon icon-check yes"}):
+            return True
+        else:
+            return False
 
-            if result.find('i', {"class": "zf-icon icon-check yes"}):
-                return True
-            else:
-                return False
 
-        pass
+    def __scrap_building_state(self, soup, tag, attributes, text):
 
-    def __scrap_building_state(self):
-        def find_entry(url, tag, attributes, text):
-            # Retrieve the page and parse it to bs4
-            driver.get(url)
-            soup = BeautifulSoup(driver.page_source, "lxml")
-            driver.close()
+        # Retrieve the content
+        return self.__scrap_title_field(soup, tag, attributes, text).get_text()
 
-            # Retrieve the content
-            return soup.find(tag, attributes, string=text).find_next('div').get_text()
-
-        pass
+    def __scrap_title_field(self, soup, tag, attributes, text):
+        return soup.find(tag, attributes, string=text).find_next('div')
