@@ -156,6 +156,13 @@ class Scrapper(Thread):
         pass
 
     def __scrap_sale_type(self):
+        for elem in soup.find_all('div', attrs={"class": "price-box"}):
+            o = elem.find_all("svg")
+            print(o)
+            if not o:
+                print('vente notariale')
+            else:
+                print('vente par agence')
         pass
 
     def __scrap_rooms_number(self):
@@ -171,6 +178,13 @@ class Scrapper(Thread):
         pass
 
     def __scrap_open_fire(self):
+        driver.get(url)
+        text = driver.page_source
+        if ("feu ouvert" or "open haard") in text.lower():
+            print("yes")
+        else:
+            print("no")
+
         pass
 
     def __scrap_terrace(self):
@@ -186,10 +200,45 @@ class Scrapper(Thread):
         pass
 
     def __scrap_facades(self):
+        def find_facades(url, tag, attributes, text):
+            # Retrieve the page and parse it to bs4
+            driver.get(url)
+            soup = BeautifulSoup(driver.page_source, "lxml")
+            driver.close()
+
+            # Retrieve the content
+            facades = soup.find(tag, attributes, string=text).find_next('div').get_text()
+            result = re.search(r"(?P<amount>\d)-façades", facades)
+            return result.group("amount")
+
         pass
 
     def __scrap_swimming_pool(self):
+        def find_pool(url, tag, attributes, text):
+
+            # Retrieve the page and parse it to bs4
+            driver.get(url)
+            soup = BeautifulSoup(driver.page_source, "lxml")
+            driver.close()
+
+            # Retrieve the content
+            result = soup.find(tag, attributes, string=text).find_next('div')
+
+            if result.find('i', {"class": "zf-icon icon-check yes"}):
+                return True
+            else:
+                return False
+
         pass
 
     def __scrap_building_state(self):
+        def find_entry(url, tag, attributes, text):
+            # Retrieve the page and parse it to bs4
+            driver.get(url)
+            soup = BeautifulSoup(driver.page_source, "lxml")
+            driver.close()
+
+            # Retrieve the content
+            return soup.find(tag, attributes, string=text).find_next('div').get_text()
+
         pass
