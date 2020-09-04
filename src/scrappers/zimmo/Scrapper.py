@@ -25,9 +25,12 @@ state_building : new/to be renovated
 ******************************************************************************
 """
 
-attributes = [
 
-        {   # 0 - default : num_rooms, kitchen_equipment, furnished,
+class Scrapper(Thread):
+
+    attributes = [
+
+        {  # 0 - default : num_rooms, kitchen_equipment, furnished,
             # is in //div @class="col-xs-7 info-name"
             "tag": 'div',
             "attributes": {
@@ -37,25 +40,25 @@ attributes = [
             "sanitizer": "default"
         },
         {  # 1 - facade
-           # is in //div @class="col-xs-7 info-name"
+            # is in //div @class="col-xs-7 info-name"
             "tag": 'div',
             "attributes": {
                 "class": "col-xs-7 info-name",
-                "text":"Construction"
+                "text": "Construction"
             },
             "sanitizer": "facade"
         },
         {  # 2 - state_building
-           # is in //div @class="col-xs-7 info-name"
+            # is in //div @class="col-xs-7 info-name"
             "tag": 'div',
             "attributes": {
                 "class": "col-xs-7 info-name",
-                "text":"Année de rénovation"
+                "text": "Année de rénovation"
             },
             "sanitizer": "state_building"
         },
         {  # 3 - locality
-           # is in //h2 @class="section-title"
+            # is in //h2 @class="section-title"
             "tag": 'h2',
             "attributes": {
                 "class": "section-title"
@@ -63,7 +66,7 @@ attributes = [
             "sanitizer": "locality"
         },
         {  # 4 - price
-           # is in //div @class="price-box"
+            # is in //div @class="price-box"
             "tag": 'div',
             "attributes": {
                 "class": "price-box",
@@ -71,16 +74,14 @@ attributes = [
             "sanitizer": "price"
         },
         {  # 5 - sale_type
-           # is in //div @class="price-box"
+            # is in //div @class="price-box"
             "tag": 'div',
             "attributes": {
                 "class": "price-box",
             },
             "sanitizer": "sale_type"
         },
-            ]
-
-class Scrapper(Thread):
+    ]
 
     def __init__(self, url):
         """
@@ -90,10 +91,54 @@ class Scrapper(Thread):
 
         super().__init__()
         self.url = url
+        self.data = []
+
 
     # Exclure viager & tout sauf maison/appartement
 
+    def init_driver():
+        driver = copy.copy(webdriver)
+        driver.implicitly_wait(30)
+
+        return driver
+
+    def get_data(self):
+        return self.data
+
+
+
+    def Scrap(self):
+
+        #Fetch the page
+        self.driver.get(self.url)
+
+        #Save the source of the page
+        time.sleep(1)
+        self.source = BeautifulSoup(self.driver.page_source, 'lxml')
+        self.driver.close()
+
+        #Lauch scrappers and retrieve content
+
+    def retrieve_content(self, tag, attributes=None):
+
+        if attributes is None:
+            attributes = {}
+
+        return self.source.find_all(tag, attrs=attributes)
+
+    def retrieve_all_raw_content(self):
+
+        # Loop through the attributes and retrieve each corresponding element
+        for entry in Scrapper.attributes:
+            self.data.append(
+                self.sanitize(entry['sanitizer'], self.retrieve_content(entry['tag'], entry['attributes'])[0]))
+
+
     def __scrap_locality(self):
+        for elem in self.source.find_all(tag, attrs=attributes):
+            m = re.search(r"((\d){4} (?P<city>.+)$)", elem.text.strip())
+            return m.group("city"))
+
         pass
 
     def __scrap_property_type(self):
@@ -102,7 +147,12 @@ class Scrapper(Thread):
     def __scrap_property_subtype(self):
         pass
 
-    def __scrap_price(self):
+    def __scrap_price(self, sanitizer):
+        for sanitizer == "price"
+        for elem in self.source.find_all(tag, attrs=attributes):
+            n = re.search(r"(?P<price>([0-9]{0,3}[.]?[0-9]{0,3}[.]?[0-9]{1,3})$)", elem.text.strip())
+            print(n.group("price"))
+
         pass
 
     def __scrap_sale_type(self):
