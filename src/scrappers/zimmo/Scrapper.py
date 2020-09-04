@@ -107,7 +107,11 @@ class Scrapper(Thread):
         self.driver.get(self.url)
         soup = BeautifulSoup(self.driver.page_source, "lxml")
 
+        self.__scrap_swimming_pool(soup, 'div', 'col-xs-7 info-name', 'Piscine')
+
         self.__scrap_building_state(soup, 'div', 'col-xs-7 info-name', 'Année de rénovation')
+        self.__scrap_furnished(soup, 'div', 'col-xs-7 info-name', 'Piscine')
+
 
         self.driver.close()
 
@@ -168,12 +172,14 @@ class Scrapper(Thread):
         pass
 
     def __scrap_furnished(self):
-        pass
+        result = self.__scrap_title_field(soup, tag, attributes, text)
+        if result.find('i', {"class": "zf-icon icon-check yes"}):
+            return True
+        else:
+            return False
 
-    def __scrap_open_fire(self):
-        driver.get(url)
-        text = driver.page_source
-        if ("feu ouvert" or "open haard") in text.lower():
+    def __scrap_open_fire(self, soup):
+        if ("feu ouvert" or "open haard") in soup.lower():
             print("yes")
         else:
             print("no")
@@ -187,39 +193,24 @@ class Scrapper(Thread):
         pass
 
     def __scrap_house_surface(self):
-        pass
+        return self.__scrap_title_field(soup, tag, attributes, text).get_text()
 
     def __scrap_plot_surface(self):
-        pass
+        return self.__scrap_title_field(soup, tag, attributes, text).get_text()
 
-    def __scrap_facades(self):
-        def find_facades(url, tag, attributes, text):
-            # Retrieve the page and parse it to bs4
-            driver.get(url)
-            soup = BeautifulSoup(driver.page_source, "lxml")
-            driver.close()
-
-            # Retrieve the content
-            facades = soup.find(tag, attributes, string=text).find_next('div').get_text()
-            result = re.search(r"(?P<amount>\d)-façades", facades)
-            return result.group("amount")
-
-        pass
+    def __scrap_facades(self, soup, tag, attributes, text):
+        facades = self.__scrap_title_field(self, soup, tag, attributes, text).get_text()
+        result = re.search(r"(?P<amount>\d)-façades", facades)
+        return result.group("amount")
 
     def __scrap_swimming_pool(self, soup, tag, attributes, text):
-
-        # Retrieve the content
         result = self.__scrap_title_field(soup, tag, attributes, text)
-
         if result.find('i', {"class": "zf-icon icon-check yes"}):
             return True
         else:
             return False
 
-
     def __scrap_building_state(self, soup, tag, attributes, text):
-
-        # Retrieve the content
         return self.__scrap_title_field(soup, tag, attributes, text).get_text()
 
     def __scrap_title_field(self, soup, tag, attributes, text):
