@@ -34,23 +34,27 @@ class Cleaner(Thread):
         """
         super().__init__()
 
-        self.houses = Cleaner.default
-
-        # If house is not None
-        if houses:
-
-            # Append all entry to the dataset
-            for house in houses:
-
-                # Check if the entry is a list with a length of 19
-                if house and type(house) == list and len(house) == 19:
-                    self.houses.loc[len(self.houses)] = house
+        self.data = []
+        self.to_clean = houses
 
     def clean(self):
+        self.data = Cleaner.default.copy()
+
+        # If house is not None
+        if self.to_clean:
+
+            # Append all entry to the dataset
+            for entry in self.to_clean:
+
+                # Check if the entry is a list with a length of 19
+                if entry and type(entry) == list and len(entry) == 19:
+                    self.data.loc[len(self.data)] = entry
         self.__save()
 
     def __save(self):
-        Saver(self.houses).save()
+        print("to save")
+        print(self.data)
+        Saver(self.data).save()
 
     @staticmethod
     def price_filter(x):
@@ -62,7 +66,7 @@ class Cleaner(Thread):
         return x.strip()
 
     @staticmethod
-    def string_to_int(x : str):
+    def string_to_int(x: str):
         if x.isdecimal():
             return int(x)
 

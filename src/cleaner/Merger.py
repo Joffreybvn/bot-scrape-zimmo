@@ -40,8 +40,8 @@ class Merger:
         for file in glob.glob(f"{Merger.path}*.p"):
 
             pickle = pd.read_pickle(file)
+            print(pickle)
             self.houses = pd.concat([self.houses, pickle])
-            print(self.houses)
 
         # print a CSV
         self.houses.fillna("None", inplace=True)

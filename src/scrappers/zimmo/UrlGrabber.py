@@ -45,7 +45,7 @@ class UrlGrabber(Thread):
         This method is called by run() and is threaded.
         """
 
-        i = 304
+        i = 305
         is_complete = False
 
         while not is_complete:
@@ -62,8 +62,11 @@ class UrlGrabber(Thread):
                     # Append all advertisement's links
                     links = self.soup.find_all('a', {"class": 'property-item_link'}, href=True)
                     for link in links:
-                        # Filter links that aren't house or appartement
+
+                        # Filter links that aren't house or apartment
                         link = self.filter_house_appartement(link.get("href"))
+
+                        # Append the link to the lis of links
                         if link:
                             self.urls.append(f"{UrlGrabber.base_url}{link}")
 
