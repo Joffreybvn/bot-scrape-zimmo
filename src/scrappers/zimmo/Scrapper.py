@@ -1,8 +1,7 @@
 
 from src.scrappers.zimmo.Utils import Scrap, ScrapMoreInfo, ScrapSurface
-from src.scrappers import WebDriver
-from selenium import webdriver
-import requests
+from src.scrappers import Request
+
 import re
 from threading import Thread
 from typing import Union
@@ -17,7 +16,6 @@ class Scrapper(Thread):
         Scrap all data from a given advertisement webpage and return it to
         the Manager.
         """
-
         super().__init__()
 
         self.scrappers = [
@@ -41,7 +39,6 @@ class Scrapper(Thread):
             ScrapMoreInfo(function=self.__scrap_building_state)  # Building
         ]
 
-        #self.driver = WebDriver()
         self.url = url
         self.data = []
         self.soup = None
@@ -59,17 +56,7 @@ class Scrapper(Thread):
     def scrap(self):
 
         # Fetch the page
-        #self.driver.get(self.url)
-        #self.soup = BeautifulSoup(self.driver.page_source(), "lxml")
-
-
-        # SCRAPPER SANS SELENIUM
-        # https://www.xml-sitemaps.com/
-        options = {'Accept': '*/*',
-             'Host': 'www.zimmo.be',
-             'User-Agent': 'Mozilla/5.0 (compatible; XML Sitemaps Generator; www.xml-sitemaps.com) Gecko XML-Sitemaps/1.0'}
-
-        response = requests.get(self.url, headers=options)
+        response = Request().get(self.url)
         self.soup = BeautifulSoup(response.content, "lxml")
 
         # Scrap the data
@@ -80,7 +67,6 @@ class Scrapper(Thread):
             self.data.append(result)
 
         self.data = list(flatten(self.data))
-        #self.driver.close()
 
     def __scrap_locality(self, *args) -> Union[str, None]:
 
@@ -179,8 +165,7 @@ class Scrapper(Thread):
             return True
 
         # If not, search in the description.
-        else:
-            return self.__scrap_description(r".*([Cc]uisine [Eée]quipée).*")
+        return self.__scrap_description(r".*([Cc]uisine [Eée]quipée).*")
 
     def __scrap_furnished(self, tag, attributes, text, *args) -> bool:
         """Scrap if the house has furniture or not, by looking on the description."""
@@ -190,8 +175,7 @@ class Scrapper(Thread):
             return True
 
         # If not, search in the description.
-        else:
-            return self.__scrap_description(r".*([mM]eublé|[mM]eubels).*")
+        return self.__scrap_description(r".*([mM]eublé|[mM]eubels).*")
 
     def __scrap_open_fire(self, tag, attributes, text, regex) -> bool:
         """Scrap if there's an open fire or not, by looking on the description."""
@@ -201,8 +185,7 @@ class Scrapper(Thread):
             return True
 
         # If not, search in the description.
-        else:
-            return self.__scrap_description(r".*([fF]eu [oO]uvert|[oO]pen [hH]aard).*")
+        return self.__scrap_description(r".*([fF]eu [oO]uvert|[oO]pen [hH]aard).*")
 
     def __scrap_building_state(self, tag, attributes, *args) -> Union[str, None]:
         """Scrap the state of the building."""
@@ -218,11 +201,11 @@ class Scrapper(Thread):
         for field in fields:
             result = self.__scrap_field_value(tag, attributes, field[0])
 
-            # If a field exists, return the corresponding data.
+            # If a field exists, return the corresponding value.
             if result:
                 return field[1]
 
-        # Return None if no data was scrapped.
+        # Return None if nothing was scrapped.
         return None
 
     """ COMMON METHODS --------------------------------------------
@@ -239,8 +222,8 @@ class Scrapper(Thread):
         # Find a match for the given regex.
         if description and re.match(regex, description, re.DOTALL):
             return True
-        else:
-            return False
+
+        return False
 
     def __scrap_regex_value(self, tag, attributes, text, regex) -> Union[str, None]:
         """Scrap a value through a regex."""
@@ -288,7 +271,7 @@ class Scrapper(Thread):
     def __scrap_field_value(self, tag, attributes, text, next_tag='div') -> Union[Tag, bool]:
         """Scrap a field by its title and return the value of this field."""
 
-        # Retrieve the field containing the title.
+        # Retrieve the field containing the given "text"
         title = self.__scrap_field(tag, attributes, text)
 
         # If it exists, return its value.

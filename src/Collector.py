@@ -1,5 +1,7 @@
 
-from src.cleaner import Cleaner
+import concurrent
+from concurrent.futures import wait
+from concurrent.futures import ThreadPoolExecutor
 from src.scrappers.zimmo import Manager
 
 
@@ -11,4 +13,13 @@ class Collector:
         files through the Cleaner.
         """
 
-        pass
+    def start(self):
+
+        manager = Manager()
+        manager.start()
+
+        with ThreadPoolExecutor(max_workers=10) as executor:
+            futures = [executor.submit(Manager.scrapper, url) for url in manager.urls]
+
+            for entry in concurrent.futures.as_completed(futures):
+                print(entry.result())

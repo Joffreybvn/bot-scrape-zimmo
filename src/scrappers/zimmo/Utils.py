@@ -5,7 +5,7 @@ from dataclasses import dataclass
 
 @dataclass
 class Scrap:
-    """Store the scrap method and its value for cleaner code."""
+    """Store a scrap method and its value."""
 
     function: Callable
     tag: str = None
