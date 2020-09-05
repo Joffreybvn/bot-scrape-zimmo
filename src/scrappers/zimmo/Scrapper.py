@@ -122,7 +122,7 @@ class Scrapper(Thread):
 
                 # Return a list of the type, and None
                 if raw_type:
-                    house_type = raw_type
+                    house_type = raw_type.group("type")
 
         return [house_type, house_subtype]
 
