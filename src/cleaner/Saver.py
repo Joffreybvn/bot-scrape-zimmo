@@ -1,6 +1,6 @@
 
 from threading import Thread
-import pickel
+import pickle
 import pandas as pd
 
 
@@ -14,8 +14,11 @@ class Saver(Thread):
         super().__init__()
         self.data = data
 
-    def to_pickel (self, data):
-        for i in len (num_threading):
-            self.data.to_pickel(f"./pickel_chunk{i}.pkl")
+    def to_pickles (self, data):
+        """
+        for i in len(num_threading):
+            self.data.to_pickel(f"./pickel_chunk{i}.pkl")"""
+        pass
 
-    def merge_pickel (self):
+    def merge_pickles (self):
+        pass

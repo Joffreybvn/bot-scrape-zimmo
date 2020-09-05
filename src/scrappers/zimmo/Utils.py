@@ -14,13 +14,15 @@ class Scrap:
     regex: str = None
 
 
+@dataclass
 class ScrapMoreInfo(Scrap):
     """Scrap method that retrieve data from the "More Info" tab of the page."""
 
     tag: str = 'div'
-    _class: str = 'col-xs-7 info-name'
+    clasz: str = 'col-xs-7 info-name'
 
 
+@dataclass
 class ScrapSurface(ScrapMoreInfo):
     """Scrap method that retrieve data with the same regex."""
 
