@@ -1,6 +1,6 @@
 
 from src.scrappers.zimmo.Utils import Scrap, ScrapMoreInfo, ScrapSurface
-from src.scrappers import Request
+from src.scrappers import Request, WebDriver
 
 import re
 from threading import Thread
@@ -11,7 +11,7 @@ from pandas.core.common import flatten
 
 class Scrapper(Thread):
 
-    def __init__(self, url):
+    def __init__(self, urls):
         """
         Scrap all data from a given advertisement webpage and return it to
         the Manager.
@@ -39,9 +39,10 @@ class Scrapper(Thread):
             ScrapMoreInfo(function=self.__scrap_building_state)  # Building
         ]
 
-        self.url = url
+        self.driver = WebDriver()
         self.data = []
         self.soup = None
+        self.urls = urls
 
     def get_data(self):
 
@@ -51,22 +52,29 @@ class Scrapper(Thread):
         return self.data
 
     def run(self):
-        self.scrap()
+        self.scrap_all()
 
-    def scrap(self):
+    def scrap_all(self):
 
-        # Fetch the page
-        response = Request().get(self.url)
-        self.soup = BeautifulSoup(response.content, "lxml")
+        for url in self.urls:
+            self.scrap(url)
 
-        # Scrap the data
-        for scrap in self.scrappers:
-            result = scrap.function(scrap.tag, scrap.clasz, scrap.title, scrap.regex)
+        self.driver.close()
 
-            # Store it
-            self.data.append(result)
+    def scrap(self, url):
 
-        self.data = list(flatten(self.data))
+        if self.driver.get(url) is not None:
+            self.soup = BeautifulSoup(self.driver.page_source(), "lxml")
+            house = []
+
+            # Scrap the data
+            for scrap in self.scrappers:
+                result = scrap.function(scrap.tag, scrap.clasz, scrap.title, scrap.regex)
+
+                # Store it
+                house.append(result)
+
+            self.data.append(list(flatten(house)))
 
     def __scrap_locality(self, *args) -> Union[str, None]:
 

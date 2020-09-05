@@ -6,6 +6,3 @@ from src import Collector
 if __name__ == "__main__":
     Collector().start()
 
-    """result = Scrapper("https://www.zimmo.be/fr/le%20roeulx-7070/a-vendre/maison/JP07D/").get_data()
-    print(result)"""
-

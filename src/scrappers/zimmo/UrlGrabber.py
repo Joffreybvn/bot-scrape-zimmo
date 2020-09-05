@@ -1,5 +1,5 @@
 
-from src.scrappers import Request
+from src.scrappers import Request, WebDriver
 
 from threading import Thread
 from bs4 import BeautifulSoup
@@ -18,8 +18,11 @@ class UrlGrabber(Thread):
         """
 
         Thread.__init__(self)
+        print(f'[+] UrlGrabber: Start grabbing for {province}')
+
         self.source = f"https://www.zimmo.be/fr/province/{province}/a-vendre/?pagina=%s#gallery"
         self.urls: list = []
+        self.driver = WebDriver()
 
     def get_urls(self):
         """Return a list of all urls of the given province."""
@@ -29,12 +32,12 @@ class UrlGrabber(Thread):
             self.run()
 
         # Then return the urls
-        print(self.urls)
         return self.urls
 
     def run(self):
         """Launch the threaded execution of this class."""
         self.__grab()
+        self.driver.close()
 
     def __grab(self) -> None:
         """
@@ -42,24 +45,25 @@ class UrlGrabber(Thread):
         This method is called by run() and is threaded.
         """
 
-        i = 306
+        i = 307
         is_complete = False
 
         while not is_complete:
             i += 1
 
             # Fetch the page
-            response = Request().get(self.source % i)
-            self.soup = BeautifulSoup(response.content, "lxml")
+            # response = Request().get(self.source % i)
+            if self.driver.get(self.source % i) is not None:
+                self.soup = BeautifulSoup(self.driver.page_source(), "lxml")
 
-            # Check if there are adverts
-            if not self.soup.find('div', {"class": 'alert alert-danger'}):
+                # Check if there are adverts
+                if not self.soup.find('div', {"class": 'alert alert-danger'}):
 
-                # Append all advertisement's links
-                links = self.soup.find_all('a', {"class": 'property-item_link'}, href=True)
-                for link in links:
-                    self.urls.append(f"{UrlGrabber.base_url}{link.get('href')}")
+                    # Append all advertisement's links
+                    links = self.soup.find_all('a', {"class": 'property-item_link'}, href=True)
+                    for link in links:
+                        self.urls.append(f"{UrlGrabber.base_url}{link.get('href')}")
 
-            # If the grabber reach the last page, stop the loop
-            else:
-                is_complete = True
+                # If the grabber reach the last page, stop the loop
+                else:
+                    is_complete = True

@@ -2,8 +2,10 @@
 import concurrent
 from concurrent.futures import wait
 from concurrent.futures import ThreadPoolExecutor
+
 from src.scrappers.zimmo.UrlGrabber import UrlGrabber
 from src.scrappers.zimmo.Scrapper import Scrapper
+from src.scrappers import WebDriver
 
 
 class Manager:
@@ -32,13 +34,10 @@ class Manager:
         """
         self.urls = []
 
-    def start(self):
-        self.__grab_all_urls()
-
-    def __grab_all_urls(self):
+    def grabber(self, workers):
         """Retrieve the urls of all selling advertisement from zimmo.be."""
 
-        for url in self.__thread_call(self.__url_grabber, Manager.provinces, 10):
+        for url in self.__thread_call(self.__url_grabber, Manager.provinces, workers):
             self.urls += url.result()
 
     @staticmethod
@@ -46,8 +45,10 @@ class Manager:
         return UrlGrabber(province).get_urls()
 
     @staticmethod
-    def scrapper(url):
-        return Scrapper(url).get_data()
+    def scrapper(urls):
+        print(f"urls passed: {len(urls)}")
+        print(urls)
+        return Scrapper(urls).get_data()
 
     # https://stackoverflow.com/questions/15143837/how-to-multi-thread-an-operation-within-a-loop-in-python
     @staticmethod

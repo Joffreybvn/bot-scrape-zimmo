@@ -1,24 +1,23 @@
 
 from threading import Thread
-import pickle
-import pandas as pd
+from random import sample
+from string import digits
 
 
 class Saver(Thread):
 
-    def __init__(self, data):
+    path = "./backup/"
+
+    def __init__(self, dataframe):
         """
-        Save the data into a CSV file.
+        Save the data into a Pickle file.
         """
 
         super().__init__()
-        self.data = data
+        self.dataframe = dataframe
 
-    def to_pickles (self, data):
-        """
-        for i in len(num_threading):
-            self.data.to_pickel(f"./pickel_chunk{i}.pkl")"""
-        pass
+    def save(self):
 
-    def merge_pickles (self):
-        pass
+        filename = "".join(sample(digits, 10))
+        self.dataframe.to_pickle(f"{Saver.path}{filename}.p", compression='infer', protocol=4)
+
