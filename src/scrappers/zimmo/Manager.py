@@ -12,7 +12,7 @@ class Manager:
 
     # Provinces to scrap
     provinces = [
-        "anvers",
+        #"anvers",
         # "brabant-flamand",
         # "brabant-wallon",
         # "flandre-occidentale",
@@ -21,7 +21,7 @@ class Manager:
         # "liege",
         # "limbourg",
         # "luxembourg",
-        # "namur",
+         "namur",
         # "region-de-bruxelles-capitale"
     ]
 
@@ -46,8 +46,6 @@ class Manager:
 
     @staticmethod
     def scrapper(urls):
-        print(f"urls passed: {len(urls)}")
-        print(urls)
         return Scrapper(urls).get_data()
 
     # https://stackoverflow.com/questions/15143837/how-to-multi-thread-an-operation-within-a-loop-in-python

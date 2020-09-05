@@ -52,8 +52,6 @@ class Cleaner(Thread):
         self.__save()
 
     def __save(self):
-        print("to save")
-        print(self.data)
         Saver(self.data).save()
 
     @staticmethod
