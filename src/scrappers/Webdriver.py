@@ -4,20 +4,20 @@ from selenium import webdriver
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 
 
-# driver = "/Users/noahalvarezgonzalez/Drivers/chromedriver"
-driver = "/usr/lib/chromium-browser/chromedriver"
+driver = "/Users/noahalvarezgonzalez/Drivers/chromedriver"
+# driver = "/usr/lib/chromium-browser/chromedriver"
 options = webdriver.ChromeOptions()
 
 # Block the ads
-options.add_extension("./src/scrappers/extensions/ublock_origin_1_29_2_0.crx")
+# options.add_extension("./src/scrappers/extensions/ublock_origin_1_29_2_0.crx")
 
 # Size to smallest possible
 #options.add_argument("window-size=1,1")
 
 # Block the images and javascript
 preferences = {
-    "profile.managed_default_content_settings.javascript": 2,
-    "profile.managed_default_content_settings.images": 2
+    # "profile.managed_default_content_settings.javascript": 2,
+    # "profile.managed_default_content_settings.images": 2
 }
 options.add_experimental_option("prefs", preferences)
 

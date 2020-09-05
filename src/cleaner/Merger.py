@@ -41,6 +41,7 @@ class Merger:
 
             pickle = pd.read_pickle(file)
             self.houses = pd.concat([self.houses, pickle])
+            print(self.houses)
 
         # print a CSV
         self.houses.fillna("None", inplace=True)
