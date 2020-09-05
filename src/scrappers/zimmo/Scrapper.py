@@ -49,9 +49,12 @@ class Scrapper(Thread):
     def get_data(self):
 
         if not self.data:
-            self.scrap()
+            self.run()
 
         return self.data
+
+    def run(self):
+        self.scrap()
 
     def scrap(self):
 
