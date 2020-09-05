@@ -1,10 +1,13 @@
-import random
-from selenium import webdriver
-from selenium.webdriver.common.by import By
+
+from src.scrappers import Request
+
 from threading import Thread
+from bs4 import BeautifulSoup
 
 
 class UrlGrabber(Thread):
+
+    base_url = "https://www.zimmo.be"
 
     def __init__(self, province: str):
         """
@@ -15,7 +18,6 @@ class UrlGrabber(Thread):
         """
 
         Thread.__init__(self)
-        self.driver = webdriver.Chrome("/usr/lib/chromium-browser/chromedriver")
         self.source = f"https://www.zimmo.be/fr/province/{province}/a-vendre/?pagina=%s#gallery"
         self.urls: list = []
 
@@ -27,6 +29,7 @@ class UrlGrabber(Thread):
             self.run()
 
         # Then return the urls
+        print(self.urls)
         return self.urls
 
     def run(self):
@@ -39,25 +42,24 @@ class UrlGrabber(Thread):
         This method is called by run() and is threaded.
         """
 
-        i = 0
+        i = 306
         is_complete = False
 
         while not is_complete:
             i += 1
 
-            # Fetch the webpage
-            self.driver.get(self.source % i)
+            # Fetch the page
+            response = Request().get(self.source % i)
+            self.soup = BeautifulSoup(response.content, "lxml")
 
             # Check if there are adverts
-            if not self.driver.find_elements(By.CLASS_NAME, "col-sm-7"):
+            if not self.soup.find('div', {"class": 'alert alert-danger'}):
 
                 # Append all advertisement's links
-                links = self.driver.find_elements_by_class_name("property-item_link")
+                links = self.soup.find_all('a', {"class": 'property-item_link'}, href=True)
                 for link in links:
-                    self.urls.append(link.get_attribute('href'))
+                    self.urls.append(f"{UrlGrabber.base_url}{link.get('href')}")
 
             # If the grabber reach the last page, stop the loop
             else:
                 is_complete = True
-
-        self.driver.close()
