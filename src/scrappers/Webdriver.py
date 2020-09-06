@@ -4,8 +4,8 @@ from selenium import webdriver
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 
 
-driver = "/Users/noahalvarezgonzalez/Drivers/chromedriver"
-# driver = "/usr/lib/chromium-browser/chromedriver"
+# driver = "/Users/noahalvarezgonzalez/Drivers/chromedriver"
+driver = "/usr/lib/chromium-browser/chromedriver"
 
 
 PROXIES = [
@@ -23,7 +23,7 @@ PROXIES = [
 
 class WebDriver:
 
-    def __init__(self, use_proxy=True, fast_method=True):
+    def __init__(self, use_proxy=True, fast_method=False):
 
         # Load the options
         self.options = self.__create_options(fast_method)

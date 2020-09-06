@@ -10,7 +10,7 @@ from concurrent.futures import ThreadPoolExecutor
 
 class Collector:
 
-    def __init__(self, grabber_workers=3, scrapper_workers=1, url_pool_size=10):
+    def __init__(self, grabber_workers=1, scrapper_workers=1, url_pool_size=10):
         """
         Collect the raw data from the Manager and save it into CSV
         files through the Cleaner.

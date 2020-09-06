@@ -177,6 +177,7 @@ class Scrapper(Thread):
     def __scrap_rooms_number(self, *args) -> int:
         rooms_number = 0
         has_found = {
+            "garage": False,
             "bathroom": False,
             "bedroom": False,
             "toilet": False,
@@ -201,7 +202,8 @@ class Scrapper(Thread):
         rooms_col_xs_7 = [
             ('Nombre de salles de bain', 'bathroom'),
             ('Nombre de chambres', 'bedroom'),
-            ('Nombre de WC', 'toilet')
+            ('Nombre de WC', 'toilet'),
+            ('Garages', 'garage')
         ]
 
         # Loop through these room and append their number
