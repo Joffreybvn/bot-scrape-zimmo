@@ -23,7 +23,7 @@ PROXIES = [
 
 class WebDriver:
 
-    def __init__(self, use_proxy=True, fast_method=True):
+    def __init__(self, use_proxy=True, fast_method=False):
 
         # Load the options
         self.options = self.__create_options(fast_method)

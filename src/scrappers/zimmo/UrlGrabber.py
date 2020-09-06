@@ -1,5 +1,5 @@
 
-from src.scrappers import Request, WebDriver
+from src.scrappers import WebDriver
 
 from threading import Thread
 from bs4 import BeautifulSoup
@@ -52,7 +52,6 @@ class UrlGrabber(Thread):
             i += 1
 
             # Fetch the page
-            # response = Request().get(self.source % i)
             if self.driver.get(self.source % i) is not None:
                 self.soup = BeautifulSoup(self.driver.page_source(), "lxml")
 
@@ -64,7 +63,7 @@ class UrlGrabber(Thread):
                     for link in links:
 
                         # Filter links that aren't house or apartment
-                        link = self.filter_house_appartement(link.get("href"))
+                        link = self.filter_house_apartment(link.get("href"))
 
                         # Append the link to the lis of links
                         if link:
@@ -74,7 +73,11 @@ class UrlGrabber(Thread):
                 else:
                     is_complete = True
 
-    def filter_house_appartement(self, string):
+    @staticmethod
+    def filter_house_apartment(string):
+        """Filter and return the urls that are 'maison' or 'appartement'."""
+
         if "/maison/" in string or "/appartement/" in string:
             return string
+
         return None

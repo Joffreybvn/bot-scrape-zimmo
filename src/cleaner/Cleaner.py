@@ -28,7 +28,7 @@ class Cleaner(Thread):
         "swimming pool",
         "building state"])
 
-    def __init__(self, raw_data):
+    def __init__(self, real_estate_data):
         """
         Receive the raw data from the Collector, clean/normalize it and
         save it.
@@ -36,44 +36,45 @@ class Cleaner(Thread):
         super().__init__()
 
         self.df = Cleaner.default.copy()
-        self.to_clean = raw_data
-
-    def clean(self):
 
         # Append the data given to this class to the dataframe
-        self.append_data()
+        self.append_raw_real_estate_data(real_estate_data)
+
+    def clean(self):
+        """Clean the dataframe by applying function on columns."""
 
         # Clean the price
-        self.df['price'] = self.df['price'].apply(lambda x: self.__clean_price(x))
+        self.df['price'] = self.df['price'].apply(lambda x: self.__normalize_price(x))
 
         # Clean the property subtype
-        self.df['subtype of property'] = self.df['subtype of property'].apply(lambda x: self.__clean_subtype(x))
+        self.df['subtype of property'] = self.df['subtype of property'].apply(lambda x: self.__normalize_subtype(x))
 
         self.__save()
 
-    def append_data(self):
-        """Append the data to clean to the dataframe."""
+    def append_raw_real_estate_data(self, raw_data):
+        """Append the raw data in the dataframe."""
 
         # If the data to clean is not empty
-        if self.to_clean:
+        if raw_data:
 
             # Append all entry to the dataset
-            for entry in self.to_clean:
+            for entry in raw_data:
 
                 # Check if the entry is a list with a length of 19
                 if entry and type(entry) == list and len(entry) == 19:
                     self.df.loc[len(self.df)] = entry
 
     def __save(self):
+        """Call the Saver and save the dataframe into a pickle file."""
         Saver(self.df).save()
 
-    def __clean_price(self, price: str) -> Union[int, None]:
+    def __normalize_price(self, price: str) -> Union[int, None]:
         if price:
             return self.string_to_int(price.replace(".", ""))
 
         return None
 
-    def __clean_subtype(self, subtype) -> Union[str, None]:
+    def __normalize_subtype(self, subtype) -> Union[str, None]:
         if subtype:
             return self.__sanitize_string(subtype)
 

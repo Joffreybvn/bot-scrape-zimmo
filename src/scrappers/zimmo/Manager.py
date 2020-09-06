@@ -46,9 +46,13 @@ class Manager:
 
     @staticmethod
     def scrapper(urls):
-        return Scrapper(urls).get_data()
+        scrapper = Scrapper(urls)
+        scrapper.start()
+        scrapper.join()
 
-    # https://stackoverflow.com/questions/15143837/how-to-multi-thread-an-operation-within-a-loop-in-python
+        return scrapper.get_data()
+
+        # https://stackoverflow.com/questions/15143837/how-to-multi-thread-an-operation-within-a-loop-in-python
     @staticmethod
     def __thread_call(func, sources, max_workers):
         """

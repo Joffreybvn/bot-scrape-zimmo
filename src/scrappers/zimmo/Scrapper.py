@@ -39,29 +39,35 @@ class Scrapper(Thread):
             ScrapMoreInfo(function=self.__scrap_building_state)  # Building
         ]
 
-        self.driver = WebDriver()
-        self.data = []
-        self.soup = None
+        # Store the given urls and create an empty list to store the results.
         self.urls = urls
+        self.real_estate_data = []
+
+        # Initialize the webdriver and BeautifulSoup
+        self.driver = WebDriver()
+        self.soup = None
 
     def get_data(self):
+        """Return the real_estate_data. Must be called after 'run()'."""
 
-        if not self.data:
-            self.run()
-
-        return self.data
+        return self.real_estate_data
 
     def run(self):
         self.scrap_all()
 
+        return self
+
     def scrap_all(self):
+        """Loop through all given urls and scrap their data."""
 
         for url in self.urls:
             self.scrap(url)
 
+        # Close the driver once all scraps are complete.
         self.driver.close()
 
     def scrap(self, url):
+        """Scrap all field for the given url."""
 
         if self.driver.get(url) is not None:
             self.soup = BeautifulSoup(self.driver.page_source(), "lxml")
@@ -78,7 +84,7 @@ class Scrapper(Thread):
             garden_area = self.__math_garden_area(house[12], house[11])
             house.insert(12, garden_area)
 
-            self.data.append(list(flatten(house)))
+            self.real_estate_data.append(list(flatten(house)))
 
     @staticmethod
     def __math_garden_area(plot_surface, build_surface):
@@ -115,7 +121,6 @@ class Scrapper(Thread):
 
         # If the field is not empty, retrieve the price
         if field:
-            #price = re.search(r"(?P<price>([0-9]{0,3}[.]?[0-9]{0,3}[.]?[0-9]{1,3})$)", field.strip())
             price = re.search(r".*€ (?P<price>[0-9.]+)", field)
 
             if price:
