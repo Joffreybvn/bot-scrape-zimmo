@@ -24,6 +24,17 @@ class Merger:
 
         # TODO: Transcrire les Booléens en 0 ou 1
         # Replace None to "None" (string) in the CSV
+        self.df[["swimming pool", "garden"]] = self.df[['swimming pool', "garden"]].apply(lambda x: self.true_to_1(x))
         self.df.fillna("None", inplace=True)
 
         self.df.to_csv("result.csv")
+
+    @staticmethod
+    def true_to_1(x):
+        if x == True:
+            return 1
+        elif x == False:
+            return 0
+        return None
+
+
