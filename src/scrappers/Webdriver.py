@@ -5,8 +5,8 @@ from selenium import webdriver
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 
 
-driver = "/Users/noahalvarezgonzalez/Drivers/chromedriver"
-# driver = "/usr/lib/chromium-browser/chromedriver"
+# driver = "/Users/noahalvarezgonzalez/Drivers/chromedriver"
+driver = "/usr/lib/chromium-browser/chromedriver"
 
 
 PROXIES = [
@@ -34,11 +34,10 @@ class WebDriver:
 
         # Initialize the driver
         self.driver = webdriver.Chrome(driver, chrome_options=self.options)
-        self.driver.implicitly_wait(30)
+        self.driver.implicitly_wait(86400)  # Max waiting time: 24h
 
     def get(self, url):
         if url:
-            time.sleep(self.delay)
             self.driver.get(url)
 
             # Wait for the page to load
