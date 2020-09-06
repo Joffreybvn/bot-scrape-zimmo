@@ -1,5 +1,5 @@
 
-from typing import Union
+from typing import Union, Any
 from src.cleaner.Saver import Saver
 from threading import Thread
 import pandas as pd
@@ -85,9 +85,11 @@ class Cleaner(Thread):
         return string.strip()
 
     @staticmethod
-    def string_to_int(x: str) -> Union[int, None]:
+    def string_to_int(x: str, default=None) -> Union[int, Any]:
+
+        x = Cleaner.__sanitize_string(x)
 
         if x.isdecimal():
             return int(x)
 
-        return None
+        return default

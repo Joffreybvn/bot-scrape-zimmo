@@ -14,8 +14,8 @@ class Scrapper(Thread):
 
     def __init__(self, urls):
         """
-        Scrap all data from a given advertisement webpage and return it to
-        the Manager.
+        Scrap all data from a given real estate webpage and return it to
+        the Manager for further processing.
         """
         super().__init__()
 
@@ -103,10 +103,6 @@ class Scrapper(Thread):
 
         return None
 
-    def __scrap_rooms_number(self, *args):
-        # TODO: implement rooms number
-        return 0
-
     """ SPECIAL METHODS --------------------------------------------
     The following methods are used only to scrap one specific thing.
     They can't be factored. They use Basics and Commons methods to
@@ -177,6 +173,42 @@ class Scrapper(Thread):
                     house_type = raw_type.group("type")
 
         return [house_type, house_subtype]
+
+    def __scrap_rooms_number(self, *args) -> int:
+        rooms_number = 0
+        has_found = {
+            "bathroom": False,
+            "bedroom": False,
+            "toilet": False,
+            "kitchen": False,
+            "eating room": False,
+            "living room": False
+        }
+
+        def search_col_xs_7(title, room_type):
+            """
+            Search for a given room in a 'col_xs_7' under 'More Info'.
+            Append its number to 'room_number'.
+            """
+            nonlocal rooms_number
+
+            result = self.__get_text(self.__scrap_field_value('div', 'col-xs-7 info-name', title))
+            if result:
+                rooms_number += Cleaner.string_to_int(result, 1)
+                has_found[room_type] = True
+
+        # Rooms that can be found under "More info" in a "col_xs_7" div:
+        rooms_col_xs_7 = [
+            ('Nombre de salles de bain', 'bathroom'),
+            ('Nombre de chambres', 'bedroom'),
+            ('Nombre de WC', 'toilet')
+        ]
+
+        # Loop through these room and append their number
+        for room in rooms_col_xs_7:
+            search_col_xs_7(room[0], room[1])
+
+        return rooms_number
 
     def __scrap_terrace_and_surface(self, *args):
         """
@@ -252,7 +284,7 @@ class Scrapper(Thread):
 
     def __scrap_building_state(self, tag, attributes, *args) -> Union[str, None]:
         """Scrap the state of the building."""
-        # TODO: Implement more guessing about if a house is old or to be renovated
+        # TODO: Implement more guessing about if a house is old, new or to be renovated
 
         # The state can be found from two fields:
         fields = [
