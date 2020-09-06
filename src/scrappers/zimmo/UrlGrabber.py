@@ -1,6 +1,6 @@
 
 from src.scrappers import WebDriver
-
+from src.cleaner import Saver
 from threading import Thread
 from bs4 import BeautifulSoup
 
@@ -72,6 +72,7 @@ class UrlGrabber(Thread):
                 # If the grabber reach the last page, stop the loop
                 else:
                     is_complete = True
+                    self.urls_saver()
 
     @staticmethod
     def filter_house_apartment(string):
@@ -81,3 +82,6 @@ class UrlGrabber(Thread):
             return string
 
         return None
+
+    def urls_saver(self):
+        Saver(self.urls).save()

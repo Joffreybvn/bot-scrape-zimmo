@@ -17,7 +17,7 @@ class Merger:
     def merge(self):
 
         # Retrieve all pickles
-        for file in glob.glob(f"{Saver.path}*.p"):
+        for file in glob.glob(f"{Saver.real_estate_data}*.p"):
 
             pickle = pd.read_pickle(file)
             self.df = pd.concat([self.df, pickle])
