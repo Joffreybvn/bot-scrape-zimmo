@@ -1,11 +1,12 @@
 
+import time
 from random import choice
 from selenium import webdriver
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 
 
-# driver = "/Users/noahalvarezgonzalez/Drivers/chromedriver"
-driver = "/usr/lib/chromium-browser/chromedriver"
+driver = "/Users/noahalvarezgonzalez/Drivers/chromedriver"
+# driver = "/usr/lib/chromium-browser/chromedriver"
 
 
 PROXIES = [
@@ -23,7 +24,9 @@ PROXIES = [
 
 class WebDriver:
 
-    def __init__(self, use_proxy=True, fast_method=False):
+    def __init__(self, use_proxy=True, fast_method=False, delay=2):
+
+        self.delay = delay
 
         # Load the options
         self.options = self.__create_options(fast_method)
@@ -35,6 +38,7 @@ class WebDriver:
 
     def get(self, url):
         if url:
+            time.sleep(self.delay)
             self.driver.get(url)
 
             # Wait for the page to load

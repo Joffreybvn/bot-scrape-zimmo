@@ -45,11 +45,12 @@ class UrlGrabber(Thread):
         This method is called by run() and is threaded.
         """
 
-        i = 307
+        i = 0
         is_complete = False
 
         while not is_complete:
             i += 1
+            print(f"current page: {i}")
 
             # Fetch the page
             if self.driver.get(self.source % i) is not None:
