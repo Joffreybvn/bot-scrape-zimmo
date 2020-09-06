@@ -6,22 +6,8 @@ from selenium.webdriver.common.proxy import Proxy, ProxyType
 
 # driver = "/Users/noahalvarezgonzalez/Drivers/chromedriver"
 driver = "/usr/lib/chromium-browser/chromedriver"
-options = webdriver.ChromeOptions()
 
-# Block the ads
-# options.add_extension("./src/scrappers/extensions/ublock_origin_1_29_2_0.crx")
 
-# Size to smallest possible
-#options.add_argument("window-size=1,1")
-
-# Block the images and javascript
-preferences = {
-    # "profile.managed_default_content_settings.javascript": 2,
-    # "profile.managed_default_content_settings.images": 2
-}
-options.add_experimental_option("prefs", preferences)
-
-# Add a proxy
 PROXIES = [
     "176.31.141.21:51327",
     "51.77.163.186:8080",
@@ -34,24 +20,18 @@ PROXIES = [
     "51.68.61.17:5000"
 ]
 
-proxy = Proxy()
-proxy.proxyType = ProxyType.MANUAL
-proxy.autodetect = False
-
 
 class WebDriver:
 
-    def __init__(self):
+    def __init__(self, use_proxy=True, fast_method=True):
 
-        # Load a random proxy
-        self.proxy = choice(PROXIES)
-        proxy.httpProxy = proxy.sslProxy = proxy.socksProxy = self.proxy
-        options.Proxy = proxy
-        options.add_argument("ignore-certificate-errors")
+        # Load the options
+        self.options = self.__create_options(fast_method)
+        self.__activate_proxy(use_proxy)
 
-        self.driver = webdriver.Chrome(driver, chrome_options=options)
+        # Initialize the driver
+        self.driver = webdriver.Chrome(driver, chrome_options=self.options)
         self.driver.implicitly_wait(30)
-        # self.driver.set_window_size(1, 1)
 
     def get(self, url):
         if url:
@@ -72,3 +52,41 @@ class WebDriver:
 
     def close(self):
         self.driver.close()
+
+    @staticmethod
+    def __create_options(fast_method):
+        options = webdriver.ChromeOptions()
+
+        if fast_method:
+
+            # Block the ads
+            options.add_extension("./src/scrappers/extensions/ublock_origin_1_29_2_0.crx")
+
+            # Use a small windows
+            options.add_argument("window-size=1,1")
+
+            # Block the images and the javascript
+            preferences = {
+                "profile.managed_default_content_settings.javascript": 2,
+                "profile.managed_default_content_settings.images": 2
+            }
+            options.add_experimental_option("prefs", preferences)
+
+        return options
+
+    def __activate_proxy(self, use_proxy):
+
+        if use_proxy:
+
+            # Initialize the proxy
+            proxy = Proxy()
+            proxy.proxyType = ProxyType.MANUAL
+            proxy.autodetect = False
+
+            # Load a random proxy
+            self.proxy = choice(PROXIES)
+            proxy.httpProxy = proxy.sslProxy = proxy.socksProxy = self.proxy
+
+            # Apply it to self.options
+            self.options.Proxy = proxy
+            self.options.add_argument("ignore-certificate-errors")
