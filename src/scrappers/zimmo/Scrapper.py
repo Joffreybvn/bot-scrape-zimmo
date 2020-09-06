@@ -1,6 +1,7 @@
 
 from src.scrappers.zimmo.Utils import Scrap, ScrapMoreInfo, ScrapSurface
-from src.scrappers import Request, WebDriver
+from src.scrappers import WebDriver
+from src.cleaner import Cleaner
 
 import re
 from threading import Thread
@@ -19,19 +20,18 @@ class Scrapper(Thread):
         super().__init__()
 
         self.scrappers = [
-            Scrap(function=self.__scrap_locality),  # Locality
+            Scrap(function=self.__scrap_locality, tag='h1', clasz='pand-title'),  # Locality
             Scrap(function=self.__scrap_property_type),  # Type and subtype of property
-            Scrap(function=self.__scrap_price, tag='div', clasz='price-box'),  # Price
+            Scrap(function=self.__scrap_price, tag='h1', clasz='pand-title'),  # Price
             Scrap(function=self.__scrap_sale_type, tag='div', clasz='price-box'),  # Sale type
             Scrap(function=self.__scrap_rooms_number),  # Room number
             ScrapSurface(function=self.__scrap_regex_value, title='Surface habitable'),  # Area
             ScrapMoreInfo(function=self.__scrap_kitchen, title="Type de cuisine"),  # Kitchen equipment
             ScrapMoreInfo(function=self.__scrap_furnished, title="Meublé"),  # Furnished
             ScrapMoreInfo(function=self.__scrap_open_fire, title='Feux ouverts', regex=r"(?P<number>\d)"),  # Open fire
-            ScrapMoreInfo(function=self.__scrap_v_mark, title='Terrasse'),  # Terrace
-            Scrap(function=self.__scrap_terrace_area),  # Terrace Area
+            Scrap(function=self.__scrap_terrace_and_surface),
             ScrapMoreInfo(function=self.__scrap_v_mark, title='Jardin'),  # Garden
-            Scrap(function=self.__scrap_garden_area),  # Garden Area
+            # Garden Area (i = 11) - Calculated later
             ScrapSurface(function=self.__scrap_regex_value, title='Surface construite'),  # Surface of the land
             ScrapSurface(function=self.__scrap_regex_value, title='Superficie du terrain'),  # Plot of land
             ScrapMoreInfo(function=self.__scrap_regex_value, title='Construction', regex=r"(?P<number>\d)-façades"),  # Facades
@@ -74,27 +74,80 @@ class Scrapper(Thread):
                 # Store it
                 house.append(result)
 
+            # Math the garden area, and insert it to the list
+            garden_area = self.__math_garden_area(house[12], house[11])
+            house.insert(12, garden_area)
+
             self.data.append(list(flatten(house)))
 
-    def __scrap_locality(self, *args) -> Union[str, None]:
+    @staticmethod
+    def __math_garden_area(plot_surface, build_surface):
 
-        title = self.__get_text(self.__scrap_field('h2', "section-title"))
+        # If plot_surface and build_surface are not None:
+        if plot_surface and build_surface:
 
-        if title:
-            regex = re.search(r"((\d){4} (?P<city>.+)$)", title.strip())
+            # Convert string to int
+            plot_surface = Cleaner.string_to_int(plot_surface.strip())
+            build_surface = Cleaner.string_to_int(build_surface.strip())
 
-            if regex:
-                return regex.group("city")
+            # If plot_surface and build_surface exists:
+            if plot_surface and build_surface:
+                print(plot_surface - build_surface)
+                return plot_surface - build_surface
 
         return None
 
-    def __scrap_garden_area(self, *args):
+    def __scrap_rooms_number(self, *args):
+        # TODO: implement rooms number
+        return 0
+
+    """ SPECIAL METHODS --------------------------------------------
+    The following methods are used only to scrap one specific thing.
+    They can't be factored. They use Basics and Commons methods to
+    work.
+    """
+
+    def __scrap_price(self, tag, attributes, *args) -> Union[str, None]:
+        """Scrap the price."""
+
+        # Retrieve the price field.
+        field = self.__get_text(self.__scrap_field(tag, attributes))
+
+        # If the field is not empty, retrieve the price
+        if field:
+            #price = re.search(r"(?P<price>([0-9]{0,3}[.]?[0-9]{0,3}[.]?[0-9]{1,3})$)", field.strip())
+            price = re.search(r".*€ (?P<price>[0-9.]+)", field)
+
+            if price:
+                return price.group("price")
         return None
 
-    def __scrap_terrace_area(self, *args):
+    def __scrap_sale_type(self, tag, attributes, *args) -> Union[str, None]:
+        """Scrap the sale type."""
+
+        # Retrieve the price field.
+        sale = self.__scrap_field(tag, attributes)
+
+        # Check if the price field contain a sale logo.
+        if sale:
+            icon = sale.find("svg")
+
+            # If there's an icon, return "agence".
+            if icon:
+                return "agence"
+
+            # If not, return "notariale"
+            else:
+                return "notariale"
+
         return None
 
     def __scrap_property_type(self, *args) -> list:
+        """
+        Scrap the property type and subtype. Return a tuple with type
+        and subtype.
+        """
+
         house_type = house_subtype = None
 
         # Retrieve the property type field
@@ -120,48 +173,45 @@ class Scrapper(Thread):
 
         return [house_type, house_subtype]
 
-    def __scrap_rooms_number(self, *args):
-        # TODO: implement rooms number
-        return 0
+    def __scrap_terrace_and_surface(self, *args):
+        """
+        Scrap the terrace and its surface. Return a tuple of terrace
+        and surface.
+        """
+        terrace = surface = None
 
-    """ SPECIAL METHODS --------------------------------------------
-    The following methods are used only to scrap one specific thing.
-    They can't be factored. They use Basics and Commons methods to
-    work.
-    """
+        # Search for the surface area in "col-xsm-8 col-sm-3 info-name"
+        raw_surface = self.__scrap_regex_value("div", "col-xsm-8 col-sm-3 info-name", "Terrasse", r"(?P<number>\d*) m²")
 
-    def __scrap_price(self, tag, attributes, *args) -> Union[str, None]:
-        """Scrap the price."""
+        # If there's an area, set Terrace to true and save the seurface
+        if raw_surface:
+            terrace = True
+            surface = raw_surface
 
-        # Retrieve the price field.
-        field = self.__get_text(self.__scrap_field(tag, attributes))
+        # If not, search if there's a terrace in the "col-xs-7 info-name" field
+        else:
+            v_mark = self.__scrap_v_mark("div", "col-xs-7 info-name", "Terrasse")
+            text = self.__get_text(self.__scrap_field_value("div", "col-xs-7 info-name", "Jardin"))
 
-        # If the field is not empty, retrieve the price
-        if field:
-            price = re.search(r"(?P<price>([0-9]{0,3}[.]?[0-9]{0,3}[.]?[0-9]{1,3})$)", tag.strip())
+            # If there's a V-mark in "Terrasse" or the "Terrasse" word in "Jardin":
+            if v_mark or (text and "Terrasse" in text):
+                terrace = True
 
-            if price:
-                return price.group("price")
+        return [terrace, surface]
 
-        return None
+    def __scrap_locality(self, tag, attributes, *args) -> Union[str, None]:
+        """Scrap the locality from the advertisement title."""
 
-    def __scrap_sale_type(self, tag, attributes, *args) -> Union[str, None]:
-        """Scrap the sale type."""
+        # Retrieve the title
+        title = self.__get_text(self.__scrap_field(tag, attributes))
 
-        # Retrieve the price field.
-        sale = self.__scrap_field(tag, {"class": attributes})
+        # Regex the locality
+        if title:
+            regex = re.search(r".*à (?P<locality>.*) pour .*", title, re.DOTALL)
 
-        # Check if the price field contain a sale logo.
-        if sale:
-            icon = sale.find("svg")
-
-            # If there's an icon, return "agence".
-            if icon:
-                return "agence"
-
-            # If not, return "notariale"
-            else:
-                return "notariale"
+            # If a locality is found, return it
+            if regex:
+                return regex.group("locality")
 
         return None
 
@@ -225,7 +275,7 @@ class Scrapper(Thread):
         """Scrap the description and look for match."""
 
         # Scrap the description.
-        description = self.__get_text(self.__scrap_field('p', {"class": "description-block"}))
+        description = self.__get_text(self.__scrap_field('p', "description-block"))
 
         # Find a match for the given regex.
         if description and re.match(regex, description, re.DOTALL):

@@ -1,4 +1,5 @@
 
+from typing import Union
 from src.cleaner.Saver import Saver
 from threading import Thread
 import pandas as pd
@@ -27,20 +28,33 @@ class Cleaner(Thread):
         "swimming pool",
         "building state"])
 
-    def __init__(self, houses):
+    def __init__(self, raw_data):
         """
         Receive the raw data from the Collector, clean/normalize it and
         save it.
         """
         super().__init__()
 
-        self.data = []
-        self.to_clean = houses
+        self.df = Cleaner.default.copy()
+        self.to_clean = raw_data
 
     def clean(self):
-        self.data = Cleaner.default.copy()
 
-        # If house is not None
+        # Append the data given to this class to the dataframe
+        self.append_data()
+
+        # Clean the price
+        self.df['price'] = self.df['price'].apply(lambda x: self.__clean_price(x))
+
+        # Clean the property subtype
+        self.df['subtype of property'] = self.df['subtype of property'].apply(lambda x: self.__clean_subtype(x))
+
+        self.__save()
+
+    def append_data(self):
+        """Append the data to clean to the dataframe."""
+
+        # If the data to clean is not empty
         if self.to_clean:
 
             # Append all entry to the dataset
@@ -48,33 +62,31 @@ class Cleaner(Thread):
 
                 # Check if the entry is a list with a length of 19
                 if entry and type(entry) == list and len(entry) == 19:
-                    self.data.loc[len(self.data)] = entry
-        self.__save()
+                    self.df.loc[len(self.df)] = entry
 
     def __save(self):
-        Saver(self.data).save()
+        Saver(self.df).save()
+
+    def __clean_price(self, price: str) -> Union[int, None]:
+        if price:
+            return self.string_to_int(price.replace(".", ""))
+
+        return None
+
+    def __clean_subtype(self, subtype) -> Union[str, None]:
+        if subtype:
+            return self.__sanitize_string(subtype)
+
+        return None
 
     @staticmethod
-    def price_filter(x):
-        ans = int(x.replace(".", ""))
-        return ans
+    def __sanitize_string(string: str) -> str:
+        return string.strip()
 
     @staticmethod
-    def under_type_filter(x):
-        return x.strip()
+    def string_to_int(x: str) -> Union[int, None]:
 
-    @staticmethod
-    def string_to_int(x: str):
         if x.isdecimal():
             return int(x)
 
         return None
-
-    def cleaning(self, dataframe):
-        pass
-
-
-
-
-
-

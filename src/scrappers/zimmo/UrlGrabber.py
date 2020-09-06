@@ -45,7 +45,7 @@ class UrlGrabber(Thread):
         This method is called by run() and is threaded.
         """
 
-        i = 0
+        i = 307
         is_complete = False
 
         while not is_complete:

@@ -7,4 +7,3 @@ from src.cleaner import Merger
 if __name__ == "__main__":
     Collector().start()
     #Merger().merge()
-

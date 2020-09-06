@@ -4,8 +4,8 @@ from selenium import webdriver
 from selenium.webdriver.common.proxy import Proxy, ProxyType
 
 
-driver = "/Users/noahalvarezgonzalez/Drivers/chromedriver"
-# driver = "/usr/lib/chromium-browser/chromedriver"
+# driver = "/Users/noahalvarezgonzalez/Drivers/chromedriver"
+driver = "/usr/lib/chromium-browser/chromedriver"
 options = webdriver.ChromeOptions()
 
 # Block the ads

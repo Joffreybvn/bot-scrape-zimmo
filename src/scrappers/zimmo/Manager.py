@@ -12,7 +12,7 @@ class Manager:
 
     # Provinces to scrap
     provinces = [
-        #"anvers",
+        "anvers",
         # "brabant-flamand",
         # "brabant-wallon",
         # "flandre-occidentale",
@@ -21,7 +21,7 @@ class Manager:
         # "liege",
         # "limbourg",
         # "luxembourg",
-         "namur",
+        # "namur",
         # "region-de-bruxelles-capitale"
     ]
 
@@ -67,6 +67,3 @@ class Manager:
 
             # Return an iterator of lists
             return concurrent.futures.as_completed(futures)
-
-
-

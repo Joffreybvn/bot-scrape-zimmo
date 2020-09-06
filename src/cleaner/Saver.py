@@ -20,4 +20,3 @@ class Saver(Thread):
 
         filename = "".join(sample(digits, 10))
         self.dataframe.to_pickle(f"{Saver.path}{filename}.p", compression='infer', protocol=4)
-
