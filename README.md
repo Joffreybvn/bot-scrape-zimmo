@@ -110,6 +110,10 @@ The two strong points of this architecture are:
   - **Scrapping Zimmo.be through Request only** (No more Selenium): To speed up the scrapping, we need to reimplace Selenium by Request. But we need to implement something to detect when the Request face a Captach, and open a Selenium webpage of the website for us to solve the captcha.
   
   - **Cleaning and refactoring the code**: Short delays to deliver this programm caused some part of the code to be a bit dirty. A good refactor is necessary before implementing another scrapping module.
+  
+  - **Further pre-processing of the data**: Some advertissement have missing fields. The data could be scrapped from the text written by the seller. But this require a more complicated implementation of the Scrapper.
+  
+  - **Further post-processing of the data**: Implementing a new scrapping module for a new website (like immoweb) could lead to a rewrite of the Cleaner.
 
 ## The CSV:
 
