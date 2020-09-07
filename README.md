@@ -14,6 +14,27 @@ by [Jean-Christophe Meunier](https://github.com/jcmeunier77), [Noah Alvarez Gonz
 ### Objective:
 Create a program capable of scraping one (or more ?) real estate websites while respecting all constraints.
 
+## Our target: Zimmo.be
+We have chosen to scrapp [zimmo.be](https://www.zimmo.be/fr/) for the following reasons:
+ - It contains more than 100,000 real estate's advertisements in Belgium.<br>
+ <img src="https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/arrow.svg" width="12"> So, we can get data for all over Belgium without having to scrapp multiples local agencies' website.
+ 
+ 
+ - This website is *easy* to scrapp:
+   - **No Javascript**: All the data is available in the HTML code of the site as soon as the page is loaded. There is no Javascript that delays the loading of these data. There is no button we have to click on to access these data.<br>
+ <img src="https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/arrow.svg" width="12"> So, it is possible to scrapp this website **without Selenium (no web browser)**, simply with WebRequests; this can increase the speed of our program !
+ 
+ 
+   - **A well structured HTML**: The data is encapsulated in clear html tags, with identical tags and attributes each time the page loads.<br>
+ <img src="https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/arrow.svg" width="12"> So you can just use the **simplests recovery methods** of BeautifulSoup.
+ 
+ 
+   - **A well structured website**: The entry point for our scrapper is this page: [https://www.zimmo.be/fr/province/](https://www.zimmo.be/fr/province/). By reading the URL, you can guess what it may contain. And this page regroups all the real estate selling offers of the website, classified by regions.<br>The offers' links are very clear too: [https://www.zimmo.be/fr/borgerhout-2140/a-vendre/maison/JP4OF/](https://www.zimmo.be/fr/borgerhout-2140/a-vendre/maison/JP4OF/), they contain the city, the postal code, the type of offer (for sale/to rent), the type of property (house/apartment), and a unique identification code.<br>
+<img src="https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/arrow.svg" width="12"> It is therefore possible to **apply a filter directly on URLs**, thus preventing our program from browsing unnecessary pages.
+
+   - **Bot compliant**: The site is poorly protected against bots, and responds well to the huge amount of requests send by our program. For the 20,000 + pages we scrapped, we had to complete a total of 4 captchas.<br>
+<img src="https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/arrow.svg" width="12"> We were able to avoid having to implement a strong anti-banning strategy.
+
 ## Program architecture
 ![program architecture](https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/architecture.svg)
 
