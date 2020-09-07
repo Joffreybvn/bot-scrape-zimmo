@@ -58,7 +58,7 @@ In order to practice, we tried to integrate the concepts seen during the last tw
  - File creation and crash recovery.
  - Decorators (*This goal was not achieved*).
 
-#### A picture is worth a thousand words:
+### A picture is worth a thousand words:
 Here is the architecture of our program:
 
  - <img src="https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/module.svg" height="15"> Module
@@ -68,13 +68,13 @@ Here is the architecture of our program:
 
 #### How does it works ?
 Our program is divided into three modules:
-- A Scrapper (for Zinno.be), in charge of scrapping the data.
-- A Cleaner, which cleans the data and makes backups.
-- A Merger, which transforms all backup files into a *.CSV*.
+- A **Scrapper** (for Zinno.be), in charge of scrapping the data.
+- A **Cleaner**, which cleans the data and makes backups.
+- A **Merger**, which transforms all backup files into a *.CSV*.
 
 The Object **Data Collector** coordinates the instantiation of the modules and the transmission of data between them.
 
-#### Why this architecture ?
+### Why this architecture ?
 The two strong points of this architecture are:
  - Being able to **scrapp all the sites** we want: The Zinno.be scrapper is an interchangeable module.<br>
 <img src="https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/arrow.svg" width="12"> To scrap another website, we just need to implement another module (example: An Immoweb scrap module), and connect it to the rest of the program. No need to write a new program from 0, nor to modify the Cleaner or Merger.
