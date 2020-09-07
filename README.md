@@ -1,6 +1,19 @@
 # Challenge: Collecting data
 by [Jean-Christophe Meunier](https://github.com/jcmeunier77), [Noah Alvarez Gonzalez](https://github.com/NoahAlvarezGonzalez) & [Joffrey Bienvenu](https://github.com/Joffreybvn).
 
+## Challenge's summary
+**The mission is**: To collect as much data as possible about the market price of real estate in Belgium, in order to build a dataset that can be used later to create an AI.
+
+### Constraints:
+ - Get data from all over Belgium.
+ - Deliver a *.CSV* file with a minimum of 10 000 entries.
+ - No empty fields.
+ - No duplicates.
+ - Always record numerical values if possible.
+
+### Objective:
+Create a program capable of scraping one (or more ?) real estate websites while respecting all constraints.
+
 ## Program architecture
 ![program architecture](https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/architecture.svg)
 
