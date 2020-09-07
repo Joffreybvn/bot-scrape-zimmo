@@ -45,7 +45,21 @@ Based on the [challenge's constraints](https://github.com/Joffreybvn/challenge-c
  - Clean up data and complete missing data.
  - Deliver a CSV that meets the customer's specifications.
  - Backup data in case of a crash.
- 
+
+### How does it do that ?
+Afin de s'exercer, nous avons essayé d'intégrer au programme les concepts vu durant ces deux dernières semaines, tels que:
+ - La programmation orientée objet.
+ - Le Threading.
+ - Le scrapping avec les WebRequest/Selenium et BeautifullSoup.
+ - Les Regulars Expressions.
+ - Le Typing.
+ - La manipualtion de données avec les DatafFrames de Pandas.
+ - La création et la récupération de fichiers.
+ - Les décorateurs (*Cet objectif là n'est pas atteind*).
+
+#### A picture is worth a thousand words:
+Voici l'architecture de notre programme:
+
 ![program architecture](https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/architecture.svg)
 
 - The **Data Collector** is the core of our program: It manage the scrappers to retrieve content, and send it to the Cleaner to be saved into CSV files.
