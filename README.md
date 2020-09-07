@@ -100,30 +100,39 @@ The two strong points of this architecture are:
  
  ### How to deal with Captchas ?
  Currently, Captchas are the reason why we are not scrapping zimmo.be through Request. Here is how we deal with them:
- 1. The Webdriver is set to 
+ 
+ 1. The Webdriver is set to wait up to 24h for a humain intervention when a Captcha appear
+ 2. The humain solve the captcha
+ 3. The program continue to scrapp
  
  ## TO DO - Future improvements:
  
   - **Scrapping Zimmo.be through Request only** (No more Selenium): To speed up the scrapping, we need to reimplace Selenium by Request. But we need to implement something to detect when the Request face a Captach, and open a Selenium webpage of the website for us to solve the captcha.
+  
+  - **Cleaning and refactoring the code**: Short delays to deliver this programm caused some part of the code to be a bit dirty. A good refactor is necessary before implementing another scrapping module.
 
-## Variables definition
- - locality : str
- - type_of_property : house/appartment
- - subtype of property :
- - price : int (euros)
- - sale_type : by agency/notarial
- - Num_rooms : int
- - area : int (squared meters)
- - kitchen_equipment : none, equipped, fully equipped
- - furnished : yes/no
- - open_fire : yes/no
- - terrace : yes/no
-   - If yes, surface : int (squared meters)
- - garden
-   - if yes, surface : int (squared meters)
- - surface_land : int (squared meters)
- - surface_plot_land : int (squared meters)
- - number_of_facades : int
- - swimming_pool : yes/no
- - state_building : new/to be renovated 
+## The CSV:
+
+We manager to scrap **21 825 selling offers** from zimmo.be. [See the CSV](https://github.com/Joffreybvn/challenge-collecting-data/blob/master/belgium.csv).
+
+### CSV architecture:
+ - locality: *str*
+ - type_of_property: *str* = "house" | "appartment"
+ - subtype of property: *str*
+ - price: *int* 
+ - sale_type: *str* "agency"  | "notarial"
+ - num_rooms: *int* 
+ - area: *int*
+ - kitchen_equipment: none, equipped
+ - furnished: *bool* 
+ - open_fire: *bool* 
+ - terrace: *bool* 
+ - terrace surface: *int*
+ - garden: *bool* 
+ - garden surface: *int* 
+ - surface_land: *int*
+ - surface_plot_land: *int*
+ - number_of_facades: *int*
+ - swimming_pool: yes/no
+ - state_building: *str* = "new" | "to be renovated" 
 
