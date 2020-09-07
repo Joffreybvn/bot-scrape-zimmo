@@ -107,7 +107,7 @@ The two strong points of this architecture are:
  
  ## TO DO - Future improvements:
  
-  - **Scrapping Zimmo.be through Request only** (No more Selenium): To speed up the scrapping, we need to reimplace Selenium by Request. But we need to implement something to detect when the Request face a Captach, and open a Selenium webpage of the website for us to solve the captcha.
+  - **Scrapping Zimmo.be through Request only** (No more Selenium): To speed up the scrapping, we need to reimplace Selenium by Request. But we need to implement something to detect when the Request face a Captach, and open the webpage through Selenium for us to solve the captcha.
   
   - **Cleaning and refactoring the code**: Short delays to deliver this programm caused some part of the code to be a bit dirty. A good refactor is necessary before implementing another scrapping module.
   
@@ -117,7 +117,7 @@ The two strong points of this architecture are:
 
 ## The CSV:
 
-We manager to scrap **21 825 selling offers** from zimmo.be. [See the CSV](https://github.com/Joffreybvn/challenge-collecting-data/blob/master/belgium.csv).
+We managed to scrap **21 825 selling offers** from zimmo.be. [See the CSV](https://github.com/Joffreybvn/challenge-collecting-data/blob/master/belgium.csv).
 
 ### CSV architecture:
  - locality: *str*
