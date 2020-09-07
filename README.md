@@ -98,6 +98,13 @@ The two strong points of this architecture are:
  
  - **Merger**: It retrieve all pickles files from the *./backup/* folder. Then, depending on client's needs, it apply some filter and save everything in a *.CSV* file.
  
+ ### How to deal with Captchas ?
+ Currently, Captchas are the reason why we are not scrapping zimmo.be through Request. Here is how we deal with them:
+ 1. The Webdriver is set to 
+ 
+ ## TO DO - Future improvements:
+ 
+  - **Scrapping Zimmo.be through Request only** (No more Selenium): To speed up the scrapping, we need to reimplace Selenium by Request. But we need to implement something to detect when the Request face a Captach, and open a Selenium webpage of the website for us to solve the captcha.
 
 ## Variables definition
  - locality : str
