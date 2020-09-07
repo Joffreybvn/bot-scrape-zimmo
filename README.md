@@ -136,3 +136,7 @@ We manager to scrap **21 825 selling offers** from zimmo.be. [See the CSV](https
  - swimming_pool: yes/no
  - state_building: *str* = "new" | "to be renovated" 
 
+## Task distribution:
+ - **Joffrey**: General design of the POO structure, definition of classes, collecting urls and websites references for including in the algorithm, running the program to collect the data.
+ - **Noah**: Collecting urls and websites references for including in the algorithm, implementation of the UrlGrabber (e.g. using BeautifulSoup, regex, etc.), running the program to collect the data.
+ - **Jean-Christophe**: collecting urls and websites references, to include in the algorithm, code programming for collecting requested category (e.g. using BeautifulSoup, regex, etc.), running the program to collect the data, assist to coding command related to the pandas library.
