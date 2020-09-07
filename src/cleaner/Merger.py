@@ -22,22 +22,24 @@ class Merger:
             pickle = pd.read_pickle(file)
             self.df = pd.concat([self.df, pickle])
 
-        # TODO: Transcrire les Booléens en 0 ou 1
-        # Replace None to "None" (string) in the CSV
+        # Replace booleans to 0 or 1 in the CSV
         for i in ["swimming pool", "open fire", "furnished", "kitchen equipment", "garden"]:
-            self.df[i] = self.df[i].apply(lambda x: self.true_to_1(x))
+            self.df[i] = self.df[i].apply(lambda x: self.boolean_to_byte(x))
 
-
+        # Replace None to "None" (string) in the CSV
         self.df.fillna("None", inplace=True)
 
         self.df.to_csv("result.csv")
 
     @staticmethod
-    def true_to_1(x):
+    def boolean_to_byte(x):
+        """Return 1 if x is True, 0 if its False."""
+
         if x == True:
             return 1
         elif x == False:
             return 0
+
         return None
 
 
