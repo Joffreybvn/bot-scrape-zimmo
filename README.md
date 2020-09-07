@@ -45,23 +45,44 @@ Based on the [challenge's constraints](https://github.com/Joffreybvn/challenge-c
  - Clean up data and complete missing data.
  - Deliver a CSV that meets the customer's specifications.
  - Backup data in case of a crash.
-
+ 
 ### How does it do that ?
-Afin de s'exercer, nous avons essayé d'intégrer au programme les concepts vu durant ces deux dernières semaines, tels que:
- - La programmation orientée objet.
- - Le Threading.
- - Le scrapping avec les WebRequest/Selenium et BeautifullSoup.
- - Les Regulars Expressions.
- - Le Typing.
- - La manipualtion de données avec les DatafFrames de Pandas.
- - La création et la récupération de fichiers.
- - Les décorateurs (*Cet objectif là n'est pas atteind*).
+In order to practice, we tried to integrate the concepts seen during the last two weeks into the program, such as:
+
+ - Object-oriented programming.
+ - Threading.
+ - Scrapping with WebRequest/Selenium and BeautifulSoup.
+ - Regular Expressions.
+ - Typing.
+ - Data manipulation with Pandas' Dataframes.
+ - File creation and crash recovery.
+ - Decorators (*This goal was not achieved*).
 
 #### A picture is worth a thousand words:
-Voici l'architecture de notre programme:
+Here is the architecture of our program:
 
+ - <img src="https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/module.svg" height="15"> Module
+ - <img src="https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/object.svg" height="15"> Object
+ - <img src="https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/threaded_object.svg" height="15"> Threaded Object
 ![program architecture](https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/architecture.svg)
 
+#### How does it works ?
+Our program is divided into three modules:
+- A Scrapper (for Zinno.be), in charge of scrapping the data.
+- A Cleaner, which cleans the data and makes backups.
+- A Merger, which transforms all backup files into a *.CSV*.
+
+The Object **Data Collector** coordinates the instantiation of the modules and the transmission of data between them.
+
+#### Why this architecture ?
+The two strong points of this architecture are:
+ - Being able to **scrapp all the sites** we want: The Zinno.be scrapper is an interchangeable module.<br>
+<img src="https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/arrow.svg" width="12"> To scrap another website, we just need to implement another module (example: An Immoweb scrap module), and connect it to the rest of the program. No need to write a new program from 0, nor to modify the Cleaner or Merger.
+
+ - Being able to deliver **one *.CSV* in the desired format** to the customer: Some customers want numeric values everywhere, others prefer True/False with strings, ... Our program can do that easily !<br><br>
+<img src="https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/arrow.svg" width="12"> To be able to deliver a *.CSV* formatted on demand without having to scrapp the whole website again, our program saves the scrapping data in a "backup" folder as [pickles files](https://docs.python.org/3/library/pickle.html). **It backs them up as it retrieves them from the site**. Once all the data is recovered, it transforms it into *.CSV* via the Merger.<br><br>
+<img src="https://raw.githubusercontent.com/Joffreybvn/challenge-collecting-data/master/docs/arrow.svg" width="12"> **Advantage**: This architecture also avoids us to have to start to scrapp from the beginning if the program crashed (internet connection down ? Ban ?). As all data is saved in files, we can simply resume from where the program stopped before.
+ 
 - The **Data Collector** is the core of our program: It manage the scrappers to retrieve content, and send it to the Cleaner to be saved into CSV files.
 
 - The Manager, UrlGrabber and Scrapper are the three object that handle the scrapping:
